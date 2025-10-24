@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext, type AuthContextType } from "../contexts/AuthContext";
+import { AuthContext } from "../contexts/AuthContext";
 
 import {
   listJobsAdmin,
@@ -25,7 +25,7 @@ type Filters = {
 };
 
 export default function AdminDashboard() {
-  const { user } = useContext(AuthContext) as AuthContextType;
+  const { user } = useContext(AuthContext)!;
   const navigate = useNavigate();
 
   // Gate non-admins to sign-in (matches existing role pattern)
