@@ -1,5 +1,12 @@
 // src/services/adminService.ts
-import { gqlRequest } from "./graphqlService"; // adapt to your actual export
+import * as gql from "./graphqlService";
+const call = (doc: string, vars: any) =>
+(gql as any).gqlRequest?.(doc, vars) ??
+(gql as any).request?.(doc, vars) ??
+(gql as any).query?.(doc, vars) ??
+(gql as any).default?.request?.(doc, vars) ??
+Promise.reject(new Error("No GraphQL request function exported by graphqlService"));
+
 
 export type AdminJob = {
   id: string;
@@ -119,11 +126,11 @@ export async function listJobsAdmin(filters: {
   };
 
   try {
-    const res = await gqlRequest(LIST_JOBS_ADMIN, { filter });
+    const res = await call(LIST_JOBS_ADMIN, { filter });
     return res.listJobsAdmin as AdminJob[];
   } catch {
     // fallback to generic list if admin list isn't implemented yet
-    const res = await gqlRequest(LIST_JOBS_GENERIC, {});
+    const res = await call(LIST_JOBS_GENERIC, {});
     let items = (res.listJobs as AdminJob[]) || [];
     // client-side filtering fallback
     if (filter.status) items = items.filter(i => i.status === filter.status);
@@ -137,21 +144,22 @@ export async function listJobsAdmin(filters: {
 }
 
 export async function getJobAdmin(id: string): Promise<AdminJob> {
-  const res = await gqlRequest(GET_JOB, { id });
+  const res = await call(GET_JOB, { id });
   return res.getJob as AdminJob;
 }
 
 export async function updateJobAdmin(input: AdminJobInput): Promise<AdminJob> {
-  const res = await gqlRequest(UPDATE_JOB, { input });
+  const res = await call(UPDATE_JOB, { input });
   return res.updateJob as AdminJob;
 }
 
 export async function updateJobStatusAdmin(id: string, status: "PENDING" | "ACTIVE" | "ARCHIVED") {
   // If your backend has approve/archive mutations, you can swap to them here.
   const now = new Date().toISOString();
-  const res = await gqlRequest(UPDATE_JOB, {
+  const res = await call(UPDATE_JOB, {
     input: {
-      id, status,
+      id,
+      status,
       reviewedDate: status === "ACTIVE" ? now : undefined,
     },
   });
@@ -159,14 +167,14 @@ export async function updateJobStatusAdmin(id: string, status: "PENDING" | "ACTI
 }
 
 export async function deleteJobAdmin(id: string) {
-  const res = await gqlRequest(DELETE_JOB, { id });
+  const res = await call(DELETE_JOB, { id });
   return res.deleteJob;
 }
 
 // Users / roles
 export async function listUsersAdmin(): Promise<AdminUser[]> {
   try {
-    const res = await gqlRequest(LIST_USERS_ADMIN, {});
+    const res = await call(LIST_USERS_ADMIN, {});
     return res.listUsersAdmin as AdminUser[];
   } catch {
     // If not implemented on backend yet, show an empty table instead of breaking UI
@@ -175,16 +183,16 @@ export async function listUsersAdmin(): Promise<AdminUser[]> {
 }
 
 export async function updateUserRoleAdmin(id: string, role: AdminUser["role"]) {
-  const res = await gqlRequest(UPDATE_USER_ROLE, { id, role });
+  const res = await call(UPDATE_USER_ROLE, { id, role });
   return res.updateUserRole;
 }
 
 // Settings
 export async function getPlatformSettings(): Promise<PlatformSettings> {
-  const res = await gqlRequest(GET_PLATFORM_SETTINGS, {});
+  const res = await call(GET_PLATFORM_SETTINGS, {});
   return res.platformSettings as PlatformSettings;
 }
 export async function updatePlatformSettings(input: PlatformSettings) {
-  const res = await gqlRequest(UPDATE_PLATFORM_SETTINGS, { input });
+  const res = await call(UPDATE_PLATFORM_SETTINGS, { input });
   return res.updatePlatformSettings as PlatformSettings;
 }
