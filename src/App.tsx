@@ -8,6 +8,9 @@ import StudentDashboard from './pages/StudentDashboard';
 import CreateJobPage from './pages/CreateJobPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
+import AdminDashboard from './pages/AdminDashboard';
+import EditJobPage from './pages/EditJobPage';
+
 import './App.css';
 
 Amplify.configure(outputs);
@@ -38,6 +41,22 @@ function App() {
                 } 
               />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/jobs/:id"
+                element={
+                  <ProtectedRoute>
+                    <EditJobPage />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </div>
         </Router>
