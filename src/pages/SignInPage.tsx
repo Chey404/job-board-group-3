@@ -14,8 +14,6 @@ const SignInPage: React.FC = () => {
 
 useEffect(() => {
   if (!isAuthenticated) return;
-
-  // Prefer getting the user from your auth context; fallback to localStorage if needed
   const stored = localStorage.getItem('user');
   const currentUser = stored ? JSON.parse(stored) : null;
   const role = currentUser?.role;
@@ -32,13 +30,15 @@ useEffect(() => {
     setIsLoading(true);
 
     try {
-      // inside your submit handler, right after a successful login:
-      const user = await login(email, password); // make sure login returns the user (or read it from context/localStorage)
+      const maybeUser: any = await login(email, password); // allow unknown shape
+      const stored = localStorage.getItem("user");
+      const storedUser: any = stored ? JSON.parse(stored) : null;
+      const role: string | undefined = maybeUser?.role ?? storedUser?.role;
       
-      if (user?.role === 'ADMIN')       navigate('/admin',   { replace: true });
-      else if (user?.role === 'STUDENT') navigate('/student', { replace: true });
-      else if (user?.role === 'COMPANY') navigate('/company', { replace: true });
-      else                               navigate('/',        { replace: true });
+      if (role === "ADMIN")       navigate("/admin",   { replace: true });
+      else if (role === "STUDENT") navigate("/student", { replace: true });
+      else if (role === "COMPANY") navigate("/company", { replace: true });
+      else                         navigate("/",        { replace: true });
     } catch (err: any) {
       console.error('Sign in error:', err);
       setError(err.message || 'Invalid email or password. Please try again.');
