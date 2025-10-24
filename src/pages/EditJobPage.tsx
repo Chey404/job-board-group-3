@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { AuthContext } from "../contexts/AuthContext";
 import { getJobAdmin, updateJobAdmin, type AdminJobInput } from "../services/adminService";
 
 export default function EditJobPage() {
-  const { user } = useAuth();
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const { id } = useParams();
   const [form, setForm] = useState<AdminJobInput | null>(null);
