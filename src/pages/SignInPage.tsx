@@ -12,11 +12,19 @@ const SignInPage: React.FC = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
-    }
-  }, [isAuthenticated, navigate]);
+useEffect(() => {
+  if (!isAuthenticated) return;
+
+  // Prefer getting the user from your auth context; fallback to localStorage if needed
+  const stored = localStorage.getItem('user');
+  const currentUser = stored ? JSON.parse(stored) : null;
+  const role = currentUser?.role;
+
+  if (role === 'ADMIN')       navigate('/admin',   { replace: true });
+  else if (role === 'STUDENT') navigate('/student', { replace: true });
+  else if (role === 'COMPANY') navigate('/company', { replace: true });
+  else                         navigate('/',        { replace: true });
+}, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,8 +32,13 @@ const SignInPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      // inside your submit handler, right after a successful login:
+      const user = await login(email, password); // make sure login returns the user (or read it from context/localStorage)
+      
+      if (user?.role === 'ADMIN')       navigate('/admin',   { replace: true });
+      else if (user?.role === 'STUDENT') navigate('/student', { replace: true });
+      else if (user?.role === 'COMPANY') navigate('/company', { replace: true });
+      else                               navigate('/',        { replace: true });
     } catch (err: any) {
       console.error('Sign in error:', err);
       setError(err.message || 'Invalid email or password. Please try again.');
