@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useContext } from 'react'; 
 import { Amplify } from 'aws-amplify';
 import outputs from '../amplify_outputs.json';
 import { AuthProvider } from './contexts/AuthContext';
+import { AuthContext } from './contexts/AuthContext'; //
 import SignInPage from './pages/SignInPage';
 import CreateAccountPage from './pages/CreateAccountPage';
 import StudentDashboard from './pages/StudentDashboard';
