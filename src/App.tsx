@@ -15,6 +15,21 @@ import './App.css';
 
 Amplify.configure(outputs);
 
+//Checkpoint for Role Authentication
+function RoleLanding() {
+  const auth = useContext(AuthContext);
+  // If auth context is still hydrating, render nothing (or a tiny spinner)
+  if (!auth || auth.loading) return null;
+
+  if (!auth.isAuthenticated) return <Navigate to="/signin" replace />;
+
+  const role = (auth.user?.role ?? '').toString().toUpperCase();
+  if (role === 'ADMIN')   return <Navigate to="/admin" replace />;
+  if (role === 'STUDENT') return <Navigate to="/dashboard" replace />; // your student home
+  if (role === 'COMPANY') return <Navigate to="/company" replace />;   // if/when you add it
+  return <Navigate to="/dashboard" replace />; // safe fallback
+}
+
 function App() {
   return (
     <ErrorBoundary>
@@ -40,7 +55,7 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<RoleLanding />} />
               <Route
                 path="/admin"
                 element={
