@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
-import { getJobAdmin, updateJobAdmin, type AdminJobInput } from "../services/adminService";
+import { getJobAdmin, updateJobAdmin, deleteJobAdmin, type AdminJobInput } from "../services/adminService";
 import Navigation from "../components/Navigation";
 import "./EditJobPage.css";
 
@@ -44,8 +44,8 @@ export default function EditJobPage() {
   };
 
   return (
-    <>
-    <Navigation />
+       <>
+      <Navigation />
 
       <div className="dashboard-container">
         <div className="dashboard-main">
@@ -81,7 +81,7 @@ export default function EditJobPage() {
                   />
                 </div>
 
-                {/* Dates */}
+                {/* Posted / Reviewed / Expiration */}
                 <div>
                   <label htmlFor="postedDate">Posted Date</label>
                   <input
@@ -133,17 +133,6 @@ export default function EditJobPage() {
                     onChange={(e) => setJob((j: any) => ({ ...j, description: e.target.value }))}
                   />
                 </div>
-
-                {/* Location (optional; include only if your job model has it) */}
-                {/* <div className="full">
-                  <label htmlFor="location">Location</label>
-                  <input
-                    id="location"
-                    type="text"
-                    value={job.location ?? ""}
-                    onChange={(e) => setJob((j: any) => ({ ...j, location: e.target.value }))}
-                  />
-                </div> */}
               </div>
 
               <div className="form-actions">
