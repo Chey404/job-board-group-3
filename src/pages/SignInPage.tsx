@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import './SignInPage.css';
-import { useLocation, useNavigate } from 'react-router-dom';
 
   const SignInPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,7 +13,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
   const navigate = useNavigate();
 
   const location = useLocation();
-  const navigate = useNavigate();
   const from = (location.state as any)?.from?.pathname || '/';
 
 useEffect(() => {
