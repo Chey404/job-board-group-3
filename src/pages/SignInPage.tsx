@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import './SignInPage.css';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-const SignInPage: React.FC = () => {
+  const SignInPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -11,6 +12,10 @@ const SignInPage: React.FC = () => {
 
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const from = (location.state as any)?.from?.pathname || '/';
 
 useEffect(() => {
   if (!isAuthenticated) return;
@@ -39,6 +44,9 @@ useEffect(() => {
       else if (role === "STUDENT") navigate("/student", { replace: true });
       else if (role === "COMPANY") navigate("/company", { replace: true });
       else                         navigate("/",        { replace: true });
+
+      await login(email, password);
+      navigate(from, { replace: true });
     } catch (err: any) {
       console.error('Sign in error:', err);
       setError(err.message || 'Invalid email or password. Please try again.');
