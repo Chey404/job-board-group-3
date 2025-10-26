@@ -44,6 +44,7 @@ export default function EditJobPage() {
   };
 
   return (
+    <>
     <Navigation />
 
       <div className="dashboard-container">
