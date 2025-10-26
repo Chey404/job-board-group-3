@@ -2,6 +2,8 @@ import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import { getJobAdmin, updateJobAdmin, type AdminJobInput } from "../services/adminService";
+import Navigation from "../components/Navigation";
+import "./EditJobPage.css";
 
 export default function EditJobPage() {
   const { user } = useContext(AuthContext)!;
@@ -42,33 +44,116 @@ export default function EditJobPage() {
   };
 
   return (
-    <div className="container" style={{ padding: "1rem 1.5rem" }}>
-      <h1>Edit Posting</h1>
-      <div style={{ display: "grid", gap: ".75rem", maxWidth: 720 }}>
-        <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Job Title" />
-        <input value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} placeholder="Company Name" />
-        <textarea rows={8} value={form.description ?? ""} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Description" />
-        <label>Posted Date
-          <input type="date" value={(form.postedDate ?? "").slice(0,10)}
-                 onChange={(e) => setForm({ ...form, postedDate: new Date(e.target.value).toISOString() })} />
-        </label>
-        <label>Reviewed Date
-          <input type="date" value={(form.reviewedDate ?? "").slice(0,10)}
-                 onChange={(e) => setForm({ ...form, reviewedDate: e.target.value ? new Date(e.target.value).toISOString() : null })} />
-        </label>
-        <label>Expiration Date
-          <input type="date" value={(form.expirationDate ?? "").slice(0,10)}
-                 onChange={(e) => setForm({ ...form, expirationDate: e.target.value ? new Date(e.target.value).toISOString() : null })} />
-        </label>
-        <label>Status
-          <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as any })}>
-            <option value="PENDING">Pending</option>
-            <option value="ACTIVE">Active</option>
-            <option value="ARCHIVED">Archived</option>
-          </select>
-        </label>
-        <button onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</button>
+    <Navigation />
+
+      <div className="dashboard-container">
+        <div className="dashboard-main">
+          <h1 className="page-title">Edit Job</h1>
+
+          {loading ? (
+            <div className="loading-state">
+              <div className="loading-spinner" />
+              <p>Loading…</p>
+            </div>
+          ) : (
+            <div className="form-card">
+              <div className="form-grid">
+                {/* Title */}
+                <div className="full">
+                  <label htmlFor="title">Job Title</label>
+                  <input
+                    id="title"
+                    type="text"
+                    value={job.title ?? ""}
+                    onChange={(e) => setJob((j: any) => ({ ...j, title: e.target.value }))}
+                  />
+                </div>
+
+                {/* Company */}
+                <div className="full">
+                  <label htmlFor="companyName">Company Name</label>
+                  <input
+                    id="companyName"
+                    type="text"
+                    value={job.companyName ?? ""}
+                    onChange={(e) => setJob((j: any) => ({ ...j, companyName: e.target.value }))}
+                  />
+                </div>
+
+                {/* Dates */}
+                <div>
+                  <label htmlFor="postedDate">Posted Date</label>
+                  <input
+                    id="postedDate"
+                    type="date"
+                    value={(job.postedDate ?? "").slice(0, 10)}
+                    onChange={(e) => setJob((j: any) => ({ ...j, postedDate: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="reviewedDate">Reviewed Date</label>
+                  <input
+                    id="reviewedDate"
+                    type="date"
+                    value={(job.reviewedDate ?? "").slice(0, 10)}
+                    onChange={(e) => setJob((j: any) => ({ ...j, reviewedDate: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="expirationDate">Expiration Date</label>
+                  <input
+                    id="expirationDate"
+                    type="date"
+                    value={(job.expirationDate ?? "").slice(0, 10)}
+                    onChange={(e) => setJob((j: any) => ({ ...j, expirationDate: e.target.value }))}
+                  />
+                </div>
+
+                {/* Status */}
+                <div>
+                  <label htmlFor="status">Status</label>
+                  <select
+                    id="status"
+                    value={job.status ?? "PENDING"}
+                    onChange={(e) => setJob((j: any) => ({ ...j, status: e.target.value }))}
+                  >
+                    <option value="PENDING">Pending</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="ARCHIVED">Archived</option>
+                  </select>
+                </div>
+
+                {/* Description */}
+                <div className="full">
+                  <label htmlFor="description">Description</label>
+                  <textarea
+                    id="description"
+                    value={job.description ?? ""}
+                    onChange={(e) => setJob((j: any) => ({ ...j, description: e.target.value }))}
+                  />
+                </div>
+
+                {/* Location (optional; include only if your job model has it) */}
+                {/* <div className="full">
+                  <label htmlFor="location">Location</label>
+                  <input
+                    id="location"
+                    type="text"
+                    value={job.location ?? ""}
+                    onChange={(e) => setJob((j: any) => ({ ...j, location: e.target.value }))}
+                  />
+                </div> */}
+              </div>
+
+              <div className="form-actions">
+                <button className="btn btn-primary" onClick={save}>Save</button>
+                <button className="btn" onClick={() => navigate("/admin")}>Cancel</button>
+                <button className="btn btn-danger" onClick={remove}>Delete</button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
