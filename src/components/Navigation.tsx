@@ -9,19 +9,34 @@ const Navigation: React.FC = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('job-board');
 
-  const tabs = [
-    { id: 'job-board', label: 'DawgsConnect', route: '/dashboard' },
-    { id: 'create-job', label: 'Create a Job Posting', route: '/create-job' },
-    { id: 'applications', label: 'My Applications', route: '/applications' },
-    { id: 'profile', label: 'My Profile', route: '/profile' }
-  ];
+  // Define role-based navigation tabs
+  const getTabsForRole = () => {
+    const baseTabs = [
+      { id: 'job-board', label: 'DawgsConnect', route: '/dashboard', roles: ['STUDENT', 'COMPANY_REP', 'ADMIN'] }
+    ];
+
+    if (user?.role === 'COMPANY_REP' || user?.role === 'ADMIN') {
+      baseTabs.push(
+        { id: 'create-job', label: 'Create Job Posting', route: '/create-job', roles: ['COMPANY_REP', 'ADMIN'] },
+        { id: 'my-jobs', label: 'My Job Postings', route: '/my-job-postings', roles: ['COMPANY_REP', 'ADMIN'] }
+      );
+    }
+
+    baseTabs.push(
+      { id: 'profile', label: 'My Profile', route: '/profile', roles: ['STUDENT', 'COMPANY_REP', 'ADMIN'] }
+    );
+
+    return baseTabs.filter(tab => tab.roles.includes(user?.role || 'STUDENT'));
+  };
+
+  const tabs = getTabsForRole();
 
   useEffect(() => {
     // Set active tab based on current route
     const tabRoutes = [
       { id: 'job-board', route: '/dashboard' },
       { id: 'create-job', route: '/create-job' },
-      { id: 'applications', route: '/applications' },
+      { id: 'my-jobs', route: '/my-job-postings' },
       { id: 'profile', route: '/profile' }
     ];
     const currentTab = tabRoutes.find(tab => tab.route === location.pathname);
@@ -33,7 +48,7 @@ const Navigation: React.FC = () => {
   const handleTabClick = (tabId: string) => {
     const tab = tabs.find(t => t.id === tabId);
     if (tab) {
-      if (tab.route === '/applications' || tab.route === '/profile') {
+      if (tab.route === '/profile') {
         // For now, show placeholder for unimplemented routes
         alert(`${tab.label} page coming soon!`);
       } else {
