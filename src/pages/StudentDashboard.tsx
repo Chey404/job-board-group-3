@@ -11,14 +11,12 @@ const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
   const [jobs, setJobs] = useState<JobPosting[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<JobPosting[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedJobType, setSelectedJobType] = useState<string>('all');
   const [selectedIndustry, setSelectedIndustry] = useState<string>('all');
 
   useEffect(() => {
     const loadJobs = async () => {
-      setLoading(true);
       try {
         const jobPostings = await GraphQLService.getApprovedJobs();
         console.log('Loaded jobs:', jobPostings); // Debug logging
@@ -29,8 +27,6 @@ const StudentDashboard: React.FC = () => {
         // Set empty array on error to show empty state
         setJobs([]);
         setFilteredJobs([]);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -76,16 +72,7 @@ const StudentDashboard: React.FC = () => {
 
 
 
-  if (loading) {
-    return (
-      <div className="dashboard-container">
-        <div className="loading-state">
-          <div className="loading-spinner"></div>
-          <p>Loading job opportunities...</p>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div className="dashboard-container">
