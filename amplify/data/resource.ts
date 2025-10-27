@@ -46,6 +46,8 @@ const schema = a.schema({
       status: a.enum(["DRAFT", "PENDING", "APPROVED", "ARCHIVED"]),
       viewCount: a.integer().default(0),
       applicationCount: a.integer().default(0),
+      adminComments: a.string(),
+      approvedBy: a.email(),
       user: a.belongsTo("User", "postedBy"),
     })
     .secondaryIndexes((index: any) => [
