@@ -33,18 +33,7 @@ useEffect(() => {
     setIsLoading(true);
 
     try {
-      const maybeUser: any = await login(email, password); // allow unknown shape
-      const stored = localStorage.getItem("user");
-      const storedUser: any = stored ? JSON.parse(stored) : null;
-      const role: string | undefined = maybeUser?.role ?? storedUser?.role;
-      
-      if (role === "ADMIN")       navigate("/admin",   { replace: true });
-      else if (role === "STUDENT") navigate("/student", { replace: true });
-      else if (role === "COMPANY") navigate("/company", { replace: true });
-      else                         navigate("/",        { replace: true });
-
       await login(email, password);
-      navigate(from, { replace: true });
     } catch (err: any) {
       console.error('Sign in error:', err);
       setError(err.message || 'Invalid email or password. Please try again.');
