@@ -75,7 +75,6 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/" element={<RoleLanding />} />
               <Route
                 path="/admin"
