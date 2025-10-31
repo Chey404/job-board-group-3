@@ -12,9 +12,6 @@ import './SignInPage.css';
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const location = useLocation();
-  const from = (location.state as any)?.from?.pathname || '/';
-
 useEffect(() => {
   if (!isAuthenticated) return;
   const stored = localStorage.getItem('user');
