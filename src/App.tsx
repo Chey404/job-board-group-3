@@ -8,6 +8,8 @@ import SignInPage from './pages/SignInPage';
 import CreateAccountPage from './pages/CreateAccountPage';
 import StudentDashboard from './pages/StudentDashboard';
 import CreateJobPage from './pages/CreateJobPage';
+import MyJobPostingsPage from './pages/MyJobPostingsPage';
+import JobDetailPage from './pages/JobDetailPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import AdminDashboard from './pages/AdminDashboard';
@@ -57,6 +59,23 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
+              <Route 
+                path="/my-job-postings" 
+                element={
+                  <ProtectedRoute>
+                    <MyJobPostingsPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/job/:id" 
+                element={
+                  <ProtectedRoute>
+                    <JobDetailPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/" element={<RoleLanding />} />
               <Route
                 path="/admin"

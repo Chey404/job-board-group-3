@@ -11,14 +11,12 @@ const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
   const [jobs, setJobs] = useState<JobPosting[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<JobPosting[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedJobType, setSelectedJobType] = useState<string>('all');
   const [selectedIndustry, setSelectedIndustry] = useState<string>('all');
 
   useEffect(() => {
     const loadJobs = async () => {
-      setLoading(true);
       try {
         const jobPostings = await GraphQLService.getApprovedJobs();
         console.log('Loaded jobs:', jobPostings); // Debug logging
@@ -29,8 +27,6 @@ const StudentDashboard: React.FC = () => {
         // Set empty array on error to show empty state
         setJobs([]);
         setFilteredJobs([]);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -74,40 +70,9 @@ const StudentDashboard: React.FC = () => {
     filterJobs();
   }, [jobs, searchTerm, selectedJobType, selectedIndustry]);
 
-  const handleApply = async (jobId: string) => {
-    try {
-      // Increment view count when user shows interest
-      await GraphQLService.incrementJobViewCount(jobId);
 
-      // Find the job to get contact method
-      const job = filteredJobs.find(j => j.id === jobId);
-      if (job) {
-        if (job.contactMethod.type === 'EMAIL') {
-          // Open email client
-          const subject = encodeURIComponent(`Application for ${job.title}`);
-          const body = encodeURIComponent(`Dear Hiring Manager,\n\nI am interested in applying for the ${job.title} position at ${job.company}.\n\nBest regards`);
-          window.open(`mailto:${job.contactMethod.value}?subject=${subject}&body=${body}`);
-        } else if (job.contactMethod.type === 'CAREERS_PAGE') {
-          // Open careers page in new tab
-          window.open(job.contactMethod.value, '_blank');
-        }
-      }
-    } catch (error) {
-      console.error('Error handling apply action:', error);
-      alert('Unable to process application. Please try again.');
-    }
-  };
 
-  if (loading) {
-    return (
-      <div className="dashboard-container">
-        <div className="loading-state">
-          <div className="loading-spinner"></div>
-          <p>Loading job opportunities...</p>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div className="dashboard-container">
@@ -142,7 +107,6 @@ const StudentDashboard: React.FC = () => {
                   <JobCard
                     key={job.id}
                     job={job}
-                    onApply={handleApply}
                   />
                 ))}
               </div>

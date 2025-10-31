@@ -1,12 +1,13 @@
+import { useNavigate } from 'react-router-dom';
 import { JobPosting } from '../types';
 import './JobCard.css';
 
 interface JobCardProps {
   job: JobPosting;
-  onApply: (jobId: string) => void;
 }
 
-const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
+const JobCard: React.FC<JobCardProps> = ({ job }) => {
+  const navigate = useNavigate();
   const formatDeadline = (deadline: string) => {
     const date = new Date(deadline);
     return date.toLocaleDateString('en-US', {
@@ -29,8 +30,8 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
     }
   };
 
-  const handleApplyClick = () => {
-    onApply(job.id);
+  const handleViewDetails = () => {
+    navigate(`/job/${job.id}`);
   };
 
   return (
@@ -97,10 +98,10 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply }) => {
         </div>
         <button 
           className="apply-button"
-          onClick={handleApplyClick}
-          aria-label={`Apply for ${job.title} at ${job.company}`}
+          onClick={handleViewDetails}
+          aria-label={`View details for ${job.title} at ${job.company}`}
         >
-          Apply Now
+          View Details
         </button>
       </div>
     </div>

@@ -36,6 +36,8 @@ export interface JobPosting {
   status: 'DRAFT' | 'PENDING' | 'APPROVED' | 'ARCHIVED';
   viewCount: number;
   applicationCount: number;
+  adminComments?: string;
+  approvedBy?: string;
   createdAt?: string;
   updatedAt?: string;
 }

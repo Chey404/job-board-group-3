@@ -20,6 +20,8 @@ function convertGraphQLJobToJobPosting(job: any): JobPosting {
         status: (job.status as 'DRAFT' | 'PENDING' | 'APPROVED' | 'ARCHIVED') || 'PENDING',
         viewCount: job.viewCount || 0,
         applicationCount: job.applicationCount || 0,
+        adminComments: job.adminComments || undefined,
+        approvedBy: job.approvedBy || undefined,
         createdAt: job.createdAt || '',
         updatedAt: job.updatedAt || '',
     };
@@ -232,10 +234,37 @@ export class GraphQLService {
                 throw new Error("Failed to fetch user jobs");
             }
 
-            return jobs.map(convertGraphQLJobToJobPosting);
+            const jobPostings = jobs.map(convertGraphQLJobToJobPosting);
+            
+            // Auto-archive expired jobs
+            await this.autoArchiveExpiredJobs(jobPostings);
+            
+            // Fetch updated jobs after auto-archiving
+            const { data: updatedJobs } = await client.models.JobPosting.list({
+                filter: { postedBy: { eq: userEmail } }
+            });
+            
+            return updatedJobs.map(convertGraphQLJobToJobPosting);
         } catch (error) {
             console.error("Error fetching user jobs:", error);
             throw error;
+        }
+    }
+
+    static async autoArchiveExpiredJobs(jobs: JobPosting[]): Promise<void> {
+        const now = new Date();
+        const expiredJobs = jobs.filter(job => 
+            job.status !== 'ARCHIVED' && 
+            new Date(job.deadline) < now
+        );
+
+        for (const job of expiredJobs) {
+            try {
+                await this.updateJob(job.id, { status: 'ARCHIVED' });
+            } catch (error) {
+                console.error(`Failed to auto-archive job ${job.id}:`, error);
+                // Continue with other jobs even if one fails
+            }
         }
     }
 
