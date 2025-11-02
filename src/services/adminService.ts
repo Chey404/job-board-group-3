@@ -68,35 +68,46 @@ const UPDATE_PLATFORM_SETTINGS = `
 // --- API surface used by the pages ---
 
 export async function listJobsAdmin(filters: {
-  search?: string; company?: string; creator?: string;
+  search?: string;
+  company?: string;
+  creator?: string;
   status?: "ALL" | "PENDING" | "ACTIVE" | "ARCHIVED";
-  fromDate?: string; toDate?: string;
+  fromDate?: string;
+  toDate?: string;
 }): Promise<AdminJob[]> {
-  // Pull the same jobs StudentDashboard shows (APPROVED)
-  const all = await GraphQLService.getApprovedJobs();
+  // 1) Choose the base dataset from GraphQL (no mocks)
+  let base: any[] = [];
 
-  // Map Student JobPosting -> AdminJob
-  let items: AdminJob[] = all.map((j) => ({
+  if (!filters.status || filters.status === "ALL") {
+    base = await GraphQLService.listAllJobs();            // all statuses
+  } else if (filters.status === "ACTIVE") {
+    base = await GraphQLService.getApprovedJobs();        // same call Student uses
+  } else {
+    // For PENDING / ARCHIVED, fetch all then narrow locally (smallest change)
+    const all = await GraphQLService.listAllJobs();
+    const want = filters.status === "PENDING" ? "PENDING" : "ARCHIVED";
+    base = all.filter(j => j.status === want);
+  }
+
+  // 2) Map JobPosting -> AdminJob
+  let items: AdminJob[] = base.map((j: any) => ({
     id: j.id,
-    title: j.title,
+    title: j.title ?? "",
     companyName: j.company ?? "—",
     description: j.description ?? null,
-    postedDate: j.createdAt ?? null,             // Student uses createdAt
-    reviewedDate: j.updatedAt ?? null,           // best available proxy
-    expirationDate: j.deadline ?? null,          // Student uses deadline
+    postedDate: j.createdAt ?? null,     // Student maps createdAt; we mirror that here
+    reviewedDate: j.updatedAt ?? null,
+    expirationDate: j.deadline ?? null,
     status:
       j.status === "APPROVED" ? "ACTIVE" :
       j.status === "ARCHIVED" ? "ARCHIVED" :
-      "PENDING",                                  // DRAFT/PENDING -> PENDING
+      "PENDING",
     creator: j.postedBy ?? null,
   }));
 
-  // Safe date parser
-  const toDateObj = (v?: string) => (v ? new Date(v) : undefined);
-  const from = toDateObj(filters.fromDate);
-  const to   = toDateObj(filters.toDate);
+  // 3) Apply existing filters (search/company/creator/dates)
+  const toDate = (v?: string | null) => (v ? new Date(v) : undefined);
 
-  // Filters
   if (filters.search) {
     const q = filters.search.toLowerCase();
     items = items.filter(i =>
@@ -116,20 +127,17 @@ export async function listJobsAdmin(filters: {
     items = items.filter(i => (i.creator ?? "").toLowerCase().includes(q));
   }
 
-  if (filters.status && filters.status !== "ALL") {
-    items = items.filter(i => i.status === filters.status);
-  }
-
+  const from = toDate(filters.fromDate);
+  const to   = toDate(filters.toDate);
   if (from) {
     items = items.filter(i => {
-      const d = i.postedDate ? new Date(i.postedDate) : undefined;
+      const d = toDate(i.postedDate);
       return d ? d >= from : true;
     });
   }
-
   if (to) {
     items = items.filter(i => {
-      const d = i.postedDate ? new Date(i.postedDate) : undefined;
+      const d = toDate(i.postedDate);
       return d ? d <= to : true;
     });
   }
