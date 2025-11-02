@@ -164,7 +164,7 @@ export default function EditJobPage() {
                   }
                 >
                   <option value="PENDING">Pending</option>
-                  <option value="ACTIVE">Active</option>
+                  <option value="APPROVED">Active</option>
                   <option value="ARCHIVED">Archived</option>
                 </select>
               </div>
