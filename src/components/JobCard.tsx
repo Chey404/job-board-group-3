@@ -50,7 +50,11 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
       </div>
 
       <div className="job-card-body">
-        <p className="job-description">{job.description}</p>
+        <p className="job-description">
+          {job.description.length > 125 
+            ? `${job.description.substring(0, 125)}...` 
+            : job.description}
+        </p>
         
         <div className="job-details">
           <div className="skills-section">

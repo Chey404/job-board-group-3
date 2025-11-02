@@ -39,8 +39,9 @@
 
 .jobs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 1.5rem;
+  align-items: stretch;
 }
 
 .empty-state {
@@ -103,6 +104,13 @@
     padding-top: 4rem;
   }
   
+  .jobs-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 600px) {
   .jobs-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
