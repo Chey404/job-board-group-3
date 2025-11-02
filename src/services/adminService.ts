@@ -43,6 +43,28 @@ export type PlatformSettings = {
   postingExpirationDays: number;
 };
 
+// Optional admin endpoints (use if present; otherwise we’ll just call UPDATE_JOB to set status)
+const LIST_USERS_ADMIN = `
+  query ListUsersAdmin {
+    listUsersAdmin { id email name role }
+  }
+`;
+const UPDATE_USER_ROLE = `
+  mutation UpdateUserRole($id: ID!, $role: Role!) {
+    updateUserRole(id: $id, role: $role) { id role }
+  }
+`;
+const GET_PLATFORM_SETTINGS = `
+  query GetPlatformSettings {
+    platformSettings { approvalRequired postingExpirationDays }
+  }
+`;
+const UPDATE_PLATFORM_SETTINGS = `
+  mutation UpdatePlatformSettings($input: PlatformSettingsInput!) {
+    updatePlatformSettings(input: $input) { approvalRequired postingExpirationDays }
+  }
+`;
+
 // --- API surface used by the pages ---
 
 export async function listJobsAdmin(filters: {
