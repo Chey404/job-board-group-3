@@ -105,6 +105,9 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
+  min-height: 3.5rem;
+  display: flex;
+  align-items: flex-start;
 }
 
 .job-details {
