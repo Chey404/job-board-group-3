@@ -210,24 +210,18 @@
 /* Job Content */
 .job-content {
   padding: 2rem;
-  /* Ensure all content is fully visible */
-  overflow: visible;
-  word-wrap: break-word;
-  /* Prevent horizontal overflow */
+  display: block;
+  width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  /* Force single column layout */
-  columns: none !important;
-  column-count: 1 !important;
-  column-width: auto !important;
-  column-gap: normal !important;
-  column-fill: auto !important;
 }
 
 .job-section {
   margin-bottom: 2.5rem;
   display: block;
   width: 100%;
+  clear: both;
+  overflow: visible;
 }
 
 .job-section:last-child {
@@ -244,17 +238,22 @@
 }
 
 .job-description {
-  /* Ensure no text truncation occurs */
+  /* Force single column layout with maximum specificity */
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  columns: initial !important;
+  column-count: initial !important;
+  column-width: initial !important;
+  column-gap: initial !important;
+  column-rule: initial !important;
+  column-fill: initial !important;
+  column-span: initial !important;
+  /* Text flow properties */
   overflow: visible;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  hyphens: auto;
-  /* Force single column layout */
-  columns: none !important;
-  column-count: 1 !important;
-  column-width: auto !important;
-  column-gap: normal !important;
-  column-fill: auto !important;
+  white-space: normal;
 }
 
 .job-description p {
@@ -262,15 +261,9 @@
   line-height: 1.6;
   color: #495057;
   margin-bottom: 1rem;
-  /* Ensure long words don't overflow container */
   word-wrap: break-word;
   overflow-wrap: break-word;
-  /* Allow text to wrap naturally */
   white-space: normal;
-  /* Prevent column breaks */
-  break-inside: avoid-column;
-  page-break-inside: avoid;
-  /* Force block display */
   display: block;
   width: 100%;
 }
