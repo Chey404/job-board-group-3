@@ -16,7 +16,6 @@ interface FormData {
   deadline: string;
   contactMethod: string;
   contactValue: string;
-  contactInstructions: string;
 }
 
 interface FormErrors {
@@ -58,8 +57,7 @@ const CreateJobPage: React.FC = () => {
     requiredSkills: '',
     deadline: '',
     contactMethod: '',
-    contactValue: '',
-    contactInstructions: ''
+    contactValue: ''
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -431,16 +429,7 @@ const CreateJobPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="contactInstructions">Application Instructions (Optional)</label>
-                <textarea
-                  id="contactInstructions"
-                  value={formData.contactInstructions}
-                  onChange={(e) => handleInputChange('contactInstructions', e.target.value)}
-                  placeholder="Provide any specific instructions for applicants (e.g., documents to include, subject line format, etc.)"
-                  rows={2}
-                />
-              </div>
+
             </div>
 
             <div className="form-actions">
