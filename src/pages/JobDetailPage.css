@@ -216,10 +216,16 @@
   /* Prevent horizontal overflow */
   max-width: 100%;
   box-sizing: border-box;
+  /* Ensure single column layout */
+  columns: unset;
+  column-count: unset;
+  column-width: unset;
 }
 
 .job-section {
   margin-bottom: 2.5rem;
+  display: block;
+  width: 100%;
 }
 
 .job-section:last-child {
@@ -241,6 +247,10 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
+  /* Ensure single column layout */
+  columns: unset;
+  column-count: unset;
+  column-width: unset;
 }
 
 .job-description p {

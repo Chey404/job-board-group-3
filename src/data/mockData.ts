@@ -90,12 +90,12 @@ export const mockJobPostings: JobPosting[] = [
 export const mockLogin = async (email: string, password: string): Promise<User> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1000));
-  
+
   // Simple mock authentication
   const user = mockUsers.find(u => u.email === email);
   if (user && password === 'password123') {
     return user;
   }
-  
+
   throw new Error('Invalid email or password');
 };
