@@ -50,8 +50,12 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
       </div>
 
       <div className="job-card-body">
-        <p className="job-description">{job.description}</p>
-        
+        <p className="job-description">
+          {job.description.length > 125
+            ? `${job.description.substring(0, 125)}...`
+            : job.description}
+        </p>
+
         <div className="job-details">
           <div className="skills-section">
             <h4>Required Skills</h4>
@@ -78,7 +82,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
               <span className="meta-label">Apply via:</span>
               <span className="meta-value">
                 {job.contactMethod.type === 'EMAIL' ? 'Email' :
-                 job.contactMethod.type === 'CAREERS_PAGE' ? 'Company Website' : 'Other'}
+                  job.contactMethod.type === 'CAREERS_PAGE' ? 'Company Website' : 'Other'}
               </span>
             </div>
           </div>
@@ -96,7 +100,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
             <span className="stat-label">applications</span>
           </span>
         </div>
-        <button 
+        <button
           className="apply-button"
           onClick={handleViewDetails}
           aria-label={`View details for ${job.title} at ${job.company}`}
