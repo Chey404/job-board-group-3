@@ -1,5 +1,6 @@
 // src/services/adminService.ts
 import * as gql from "./graphqlService";
+import { GraphQLService } from "./graphqlService";
 const call = (doc: string, vars: any) =>
 (gql as any).gqlRequest?.(doc, vars) ??
 (gql as any).request?.(doc, vars) ??
@@ -112,40 +113,84 @@ const UPDATE_PLATFORM_SETTINGS = `
 // --- API surface used by the pages ---
 
 export async function listJobsAdmin(filters: {
-  search?: string; company?: string; creator?: string;
+  search?: string;
+  company?: string;
+  creator?: string;
   status?: "ALL" | "PENDING" | "ACTIVE" | "ARCHIVED";
-  fromDate?: string; toDate?: string;
+  fromDate?: string;
+  toDate?: string;
 }): Promise<AdminJob[]> {
-  const filter = {
-    search: filters.search || undefined,
-    companyName: filters.company || undefined,
-    creator: filters.creator || undefined,
-    status: filters.status && filters.status !== "ALL" ? filters.status : undefined,
-    postedFrom: filters.fromDate ? new Date(filters.fromDate).toISOString() : undefined,
-    postedTo: filters.toDate ? new Date(filters.toDate).toISOString() : undefined,
-  };
-
   try {
-    const res = await call(LIST_JOBS_ADMIN, { filter });
-    return res.listJobsAdmin as AdminJob[];
-  } catch {
-    // fallback to generic list if admin list isn't implemented yet
-    const res = await call(LIST_JOBS_GENERIC, {});
-    let items = (res.listJobs as AdminJob[]) || [];
-    // client-side filtering fallback
-    if (filter.status) items = items.filter(i => i.status === filter.status);
-    if (filter.companyName) items = items.filter(i => i.companyName?.toLowerCase().includes(filter.companyName!.toLowerCase()));
-    if (filter.creator) items = items.filter(i => (i.creator ?? "").toLowerCase().includes(filter.creator!.toLowerCase()));
-    if (filter.search) items = items.filter(i => (i.title ?? "").toLowerCase().includes(filter.search!.toLowerCase()));
-    if (filter.postedFrom) items = items.filter(i => !i.postedDate || i.postedDate >= filter.postedFrom!);
-    if (filter.postedTo) items = items.filter(i => !i.postedDate || i.postedDate <= filter.postedTo!);
-    return items;
+    // Try using the same approved jobs endpoint StudentDashboard uses
+    const allJobs = await GraphQLService.getApprovedJobs();
+
+    let filtered = allJobs;
+
+    // Apply local filters if needed
+    if (filters.search) {
+      filtered = filtered.filter(job =>
+        job.title.toLowerCase().includes(filters.search!.toLowerCase()) ||
+        job.company.toLowerCase().includes(filters.search!.toLowerCase()) ||
+        job.description.toLowerCase().includes(filters.search!.toLowerCase())
+      );
+    }
+
+    if (filters.company) {
+      filtered = filtered.filter(job =>
+        job.company.toLowerCase().includes(filters.company!.toLowerCase())
+      );
+    }
+
+    if (filters.status && filters.status !== "ALL") {
+      filtered = filtered.filter(job => job.status === filters.status);
+    }
+
+    if (filters.fromDate) {
+      const from = new Date(filters.fromDate);
+      filtered = filtered.filter(job => new Date(job.createdAt) >= from);
+    }
+
+    if (filters.toDate) {
+      const to = new Date(filters.toDate);
+      filtered = filtered.filter(job => new Date(job.createdAt) <= to);
+    }
+
+    // Map fields to AdminJob format if necessary
+    return filtered.map(job => ({
+      id: job.id,
+      title: job.title,
+      companyName: job.company,
+      description: job.description,
+      postedDate: job.createdAt,
+      reviewedDate: job.updatedAt ?? null,
+      expirationDate: job.deadline ?? null,
+      status: job.status === "APPROVED" ? "ACTIVE" : "PENDING",
+      creator: job.postedBy ?? null,
+    }));
+  } catch (err) {
+    console.error("Failed to load admin jobs:", err);
+    return [];
   }
 }
 
 export async function getJobAdmin(id: string): Promise<AdminJob> {
-  const res = await call(GET_JOB, { id });
-  return res.getJob as AdminJob;
+  try {
+    const job = await GraphQLService.getJobById(id);
+    return {
+      id: job.id,
+      title: job.title,
+      companyName: job.company,
+      description: job.description,
+      postedDate: job.createdAt,
+      reviewedDate: job.updatedAt ?? null,
+      expirationDate: job.deadline ?? null,
+      status: job.status === "APPROVED" ? "ACTIVE" : "PENDING",
+      creator: job.postedBy ?? null,
+    };
+  } catch (err) {
+    console.error("Failed to load job details:", err);
+    throw err;
+  }
 }
 
 export async function updateJobAdmin(input: AdminJobInput): Promise<AdminJob> {
