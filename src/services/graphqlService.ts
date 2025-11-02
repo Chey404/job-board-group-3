@@ -351,4 +351,19 @@ export class GraphQLService {
             throw error;
         }
     }
+
+    //Lists all jobs regardless of status
+      static async listAllJobs(): Promise<JobPosting[]> {
+    try {
+      const { data: jobs, errors } = await client.models.JobPosting.list({});
+      if (errors) {
+        console.error("GraphQL errors:", errors);
+        throw new Error("Failed to fetch all jobs");
+      }
+      return (jobs ?? []).map(convertGraphQLJobToJobPosting);
+    } catch (error) {
+      console.error("Error fetching all jobs:", error);
+      throw error;
+    }
+  }
 }
