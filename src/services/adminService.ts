@@ -1,6 +1,8 @@
 // src/services/adminService.ts
 import * as gql from "./graphqlService";
 import { GraphQLService } from "./graphqlService";
+import type { JobPosting } from "../types";
+
 const call = (doc: string, vars: any) =>
 (gql as any).gqlRequest?.(doc, vars) ??
 (gql as any).request?.(doc, vars) ??
@@ -40,47 +42,6 @@ export type PlatformSettings = {
   approvalRequired: boolean;
   postingExpirationDays: number;
 };
-
-// --- GraphQL docs ---
-// If your backend already has admin resolvers, call them directly.
-// If it doesn't: we can still meet ACs by using the generic job list & update mutations.
-// These names are written to be easy to swap later.
-
-const UPDATE_JOB = `
-  mutation UpdateJob($input: UpdateJobInput!) {
-    updateJob(input: $input) {
-      id title companyName description postedDate reviewedDate expirationDate status
-    }
-  }
-`;
-
-const DELETE_JOB = `
-  mutation DeleteJob($id: ID!) {
-    deleteJob(id: $id) { id }
-  }
-`;
-
-// Optional admin endpoints (use if present; otherwise we’ll just call UPDATE_JOB to set status)
-const LIST_USERS_ADMIN = `
-  query ListUsersAdmin {
-    listUsersAdmin { id email name role }
-  }
-`;
-const UPDATE_USER_ROLE = `
-  mutation UpdateUserRole($id: ID!, $role: Role!) {
-    updateUserRole(id: $id, role: $role) { id role }
-  }
-`;
-const GET_PLATFORM_SETTINGS = `
-  query GetPlatformSettings {
-    platformSettings { approvalRequired postingExpirationDays }
-  }
-`;
-const UPDATE_PLATFORM_SETTINGS = `
-  mutation UpdatePlatformSettings($input: PlatformSettingsInput!) {
-    updatePlatformSettings(input: $input) { approvalRequired postingExpirationDays }
-  }
-`;
 
 // --- API surface used by the pages ---
 
@@ -206,18 +167,16 @@ export async function updateJobStatusAdmin(
   id: string,
   status: "PENDING" | "ACTIVE" | "ARCHIVED"
 ) {
-  // Map admin status -> JobPosting.status
-  const jobStatus =
+  const jobStatus: JobPosting["status"] =
     status === "ACTIVE"   ? "APPROVED" :
     status === "ARCHIVED" ? "ARCHIVED" :
                             "PENDING";
 
   const payload: Partial<JobPosting> = { status: jobStatus };
 
-  // If approving, we can optionally stamp approvedBy/updatedAt
   if (status === "ACTIVE") {
-    payload.approvedBy = "admin@system"; // or current admin email, if you have it
-    payload.updatedAt = new Date().toISOString();
+    payload.approvedBy = "admin@system";        // or the current admin email
+    payload.updatedAt  = new Date().toISOString();
   }
 
   await GraphQLService.updateJob(id, payload);
