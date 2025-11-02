@@ -21,7 +21,7 @@ type Filters = {
   search?: string;
   company?: string;
   creator?: string;
-  status?: "ALL" | "PENDING" | "ACTIVE" | "ARCHIVED";
+  status?: "ALL" | "PENDING" | "APPROVED" | "ARCHIVED";
   fromDate?: string;
   toDate?: string;
 };
@@ -34,7 +34,7 @@ export default function AdminDashboard() {
     if (!user || user.role !== "ADMIN") navigate("/signin");
   }, [user, navigate]);
 
-  const [filters, setFilters] = useState<Filters>({ status: "ACTIVE" });
+  const [filters, setFilters] = useState<Filters>({ status: "All" });
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState<AdminJob[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
     await refresh();
   };
   const approve = async (id: string) => {
-    await updateJobStatusAdmin(id, "ACTIVE");
+    await updateJobStatusAdmin(id, "APPROVED");
     await refresh();
   };
   const remove = async (id: string) => {
@@ -141,7 +141,7 @@ export default function AdminDashboard() {
             >
               <option value="ALL">All</option>
               <option value="PENDING">Pending</option>
-              <option value="ACTIVE">Active</option>
+              <option value="APPROVED">Approved</option>
               <option value="ARCHIVED">Archived</option>
             </select>
             <input
