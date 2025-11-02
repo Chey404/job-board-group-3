@@ -46,34 +46,6 @@ export type PlatformSettings = {
 // If it doesn't: we can still meet ACs by using the generic job list & update mutations.
 // These names are written to be easy to swap later.
 
-const LIST_JOBS_ADMIN = `
-  query ListJobsAdmin($filter: JobFilterInput) {
-    listJobsAdmin(filter: $filter) {
-      id title companyName description creator
-      postedDate reviewedDate expirationDate status
-    }
-  }
-`;
-
-// Fallback (if listJobsAdmin isn't available):
-const LIST_JOBS_GENERIC = `
-  query ListJobs {
-    listJobs {
-      id title companyName description creator
-      postedDate reviewedDate expirationDate status
-    }
-  }
-`;
-
-const GET_JOB = `
-  query GetJob($id: ID!) {
-    getJob(id: $id) {
-      id title companyName description creator
-      postedDate reviewedDate expirationDate status
-    }
-  }
-`;
-
 const UPDATE_JOB = `
   mutation UpdateJob($input: UpdateJobInput!) {
     updateJob(input: $input) {
@@ -113,107 +85,147 @@ const UPDATE_PLATFORM_SETTINGS = `
 // --- API surface used by the pages ---
 
 export async function listJobsAdmin(filters: {
-  search?: string;
-  company?: string;
-  creator?: string;
+  search?: string; company?: string; creator?: string;
   status?: "ALL" | "PENDING" | "ACTIVE" | "ARCHIVED";
-  fromDate?: string;
-  toDate?: string;
+  fromDate?: string; toDate?: string;
 }): Promise<AdminJob[]> {
-  try {
-    // Try using the same approved jobs endpoint StudentDashboard uses
-    const allJobs = await GraphQLService.getApprovedJobs();
+  // Pull the same jobs StudentDashboard shows (APPROVED)
+  const all = await GraphQLService.getApprovedJobs();
 
-    let filtered = allJobs;
+  // Map Student JobPosting -> AdminJob
+  let items: AdminJob[] = all.map((j) => ({
+    id: j.id,
+    title: j.title,
+    companyName: j.company ?? "—",
+    description: j.description ?? null,
+    postedDate: j.createdAt ?? null,             // Student uses createdAt
+    reviewedDate: j.updatedAt ?? null,           // best available proxy
+    expirationDate: j.deadline ?? null,          // Student uses deadline
+    status:
+      j.status === "APPROVED" ? "ACTIVE" :
+      j.status === "ARCHIVED" ? "ARCHIVED" :
+      "PENDING",                                  // DRAFT/PENDING -> PENDING
+    creator: j.postedBy ?? null,
+  }));
 
-    // Apply local filters if needed
-    if (filters.search) {
-      filtered = filtered.filter(job =>
-        job.title.toLowerCase().includes(filters.search!.toLowerCase()) ||
-        job.company.toLowerCase().includes(filters.search!.toLowerCase()) ||
-        job.description.toLowerCase().includes(filters.search!.toLowerCase())
-      );
-    }
+  // Safe date parser
+  const toDateObj = (v?: string) => (v ? new Date(v) : undefined);
+  const from = toDateObj(filters.fromDate);
+  const to   = toDateObj(filters.toDate);
 
-    if (filters.company) {
-      filtered = filtered.filter(job =>
-        job.company.toLowerCase().includes(filters.company!.toLowerCase())
-      );
-    }
-
-    if (filters.status && filters.status !== "ALL") {
-      filtered = filtered.filter(job => job.status === filters.status);
-    }
-
-    if (filters.fromDate) {
-      const from = new Date(filters.fromDate);
-      filtered = filtered.filter(job => new Date(job.createdAt) >= from);
-    }
-
-    if (filters.toDate) {
-      const to = new Date(filters.toDate);
-      filtered = filtered.filter(job => new Date(job.createdAt) <= to);
-    }
-
-    // Map fields to AdminJob format if necessary
-    return filtered.map(job => ({
-      id: job.id,
-      title: job.title,
-      companyName: job.company,
-      description: job.description,
-      postedDate: job.createdAt,
-      reviewedDate: job.updatedAt ?? null,
-      expirationDate: job.deadline ?? null,
-      status: job.status === "APPROVED" ? "ACTIVE" : "PENDING",
-      creator: job.postedBy ?? null,
-    }));
-  } catch (err) {
-    console.error("Failed to load admin jobs:", err);
-    return [];
+  // Filters
+  if (filters.search) {
+    const q = filters.search.toLowerCase();
+    items = items.filter(i =>
+      (i.title ?? "").toLowerCase().includes(q) ||
+      (i.companyName ?? "").toLowerCase().includes(q) ||
+      (i.description ?? "").toLowerCase().includes(q)
+    );
   }
+
+  if (filters.company) {
+    const q = filters.company.toLowerCase();
+    items = items.filter(i => (i.companyName ?? "").toLowerCase().includes(q));
+  }
+
+  if (filters.creator) {
+    const q = filters.creator.toLowerCase();
+    items = items.filter(i => (i.creator ?? "").toLowerCase().includes(q));
+  }
+
+  if (filters.status && filters.status !== "ALL") {
+    items = items.filter(i => i.status === filters.status);
+  }
+
+  if (from) {
+    items = items.filter(i => {
+      const d = i.postedDate ? new Date(i.postedDate) : undefined;
+      return d ? d >= from : true;
+    });
+  }
+
+  if (to) {
+    items = items.filter(i => {
+      const d = i.postedDate ? new Date(i.postedDate) : undefined;
+      return d ? d <= to : true;
+    });
+  }
+
+  return items;
 }
 
 export async function getJobAdmin(id: string): Promise<AdminJob> {
-  try {
-    const job = await GraphQLService.getJobById(id);
-    return {
-      id: job.id,
-      title: job.title,
-      companyName: job.company,
-      description: job.description,
-      postedDate: job.createdAt,
-      reviewedDate: job.updatedAt ?? null,
-      expirationDate: job.deadline ?? null,
-      status: job.status === "APPROVED" ? "ACTIVE" : "PENDING",
-      creator: job.postedBy ?? null,
-    };
-  } catch (err) {
-    console.error("Failed to load job details:", err);
-    throw err;
-  }
+  const job = await GraphQLService.getJobById(id);
+  if (!job) throw new Error("Job not found");
+
+  return {
+    id: job.id,
+    title: job.title,
+    companyName: job.company ?? "—",
+    description: job.description ?? null,
+    postedDate: job.createdAt ?? null,
+    reviewedDate: job.updatedAt ?? null,
+    expirationDate: job.deadline ?? null,
+    status:
+      job.status === "APPROVED" ? "ACTIVE" :
+      job.status === "ARCHIVED" ? "ARCHIVED" :
+      "PENDING",
+    creator: job.postedBy ?? null,
+  };
 }
 
 export async function updateJobAdmin(input: AdminJobInput): Promise<AdminJob> {
-  const res = await call(UPDATE_JOB, { input });
-  return res.updateJob as AdminJob;
+  const updated = await GraphQLService.updateJob(input.id, {
+    title: input.title,
+    company: input.companyName,                 // map back to JobPosting
+    description: input.description ?? undefined,
+    // Student model fields:
+    createdAt: input.postedDate ?? undefined,   // optional; usually server sets
+    updatedAt: input.reviewedDate ?? undefined, // not typical to set manually
+    deadline: input.expirationDate ?? undefined,
+    // Keep status mapping consistent with your model (optional here)
+  });
+
+  return {
+    id: updated.id,
+    title: updated.title,
+    companyName: updated.company ?? "—",
+    description: updated.description ?? null,
+    postedDate: updated.createdAt ?? null,
+    reviewedDate: updated.updatedAt ?? null,
+    expirationDate: updated.deadline ?? null,
+    status:
+      updated.status === "APPROVED" ? "ACTIVE" :
+      updated.status === "ARCHIVED" ? "ARCHIVED" :
+      "PENDING",
+    creator: updated.postedBy ?? null,
+  };
 }
 
-export async function updateJobStatusAdmin(id: string, status: "PENDING" | "ACTIVE" | "ARCHIVED") {
-  // If your backend has approve/archive mutations, you can swap to them here.
-  const now = new Date().toISOString();
-  const res = await call(UPDATE_JOB, {
-    input: {
-      id,
-      status,
-      reviewedDate: status === "ACTIVE" ? now : undefined,
-    },
-  });
-  return res.updateJob as AdminJob;
+export async function updateJobStatusAdmin(
+  id: string,
+  status: "PENDING" | "ACTIVE" | "ARCHIVED"
+) {
+  // Map admin status -> JobPosting.status
+  const jobStatus =
+    status === "ACTIVE"   ? "APPROVED" :
+    status === "ARCHIVED" ? "ARCHIVED" :
+                            "PENDING";
+
+  const payload: Partial<JobPosting> = { status: jobStatus };
+
+  // If approving, we can optionally stamp approvedBy/updatedAt
+  if (status === "ACTIVE") {
+    payload.approvedBy = "admin@system"; // or current admin email, if you have it
+    payload.updatedAt = new Date().toISOString();
+  }
+
+  await GraphQLService.updateJob(id, payload);
 }
 
 export async function deleteJobAdmin(id: string) {
-  const res = await call(DELETE_JOB, { id });
-  return res.deleteJob;
+  await GraphQLService.deleteJob(id);
+  return { id };
 }
 
 // Users / roles
