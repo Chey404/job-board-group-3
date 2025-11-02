@@ -216,10 +216,12 @@
   /* Prevent horizontal overflow */
   max-width: 100%;
   box-sizing: border-box;
-  /* Ensure single column layout */
-  columns: unset;
-  column-count: unset;
-  column-width: unset;
+  /* Force single column layout */
+  columns: none !important;
+  column-count: 1 !important;
+  column-width: auto !important;
+  column-gap: normal !important;
+  column-fill: auto !important;
 }
 
 .job-section {
@@ -247,10 +249,12 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  /* Ensure single column layout */
-  columns: unset;
-  column-count: unset;
-  column-width: unset;
+  /* Force single column layout */
+  columns: none !important;
+  column-count: 1 !important;
+  column-width: auto !important;
+  column-gap: normal !important;
+  column-fill: auto !important;
 }
 
 .job-description p {
@@ -263,6 +267,12 @@
   overflow-wrap: break-word;
   /* Allow text to wrap naturally */
   white-space: normal;
+  /* Prevent column breaks */
+  break-inside: avoid-column;
+  page-break-inside: avoid;
+  /* Force block display */
+  display: block;
+  width: 100%;
 }
 
 .job-description p:last-child {
