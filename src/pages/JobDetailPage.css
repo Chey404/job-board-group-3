@@ -7,8 +7,10 @@
 
 .job-detail-main {
   padding: 2rem 1rem;
+  padding-top: 5rem; /* Account for fixed navigation */
   max-width: 1200px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .job-detail-content {
@@ -17,6 +19,9 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   /* Remove overflow hidden to prevent content truncation */
   overflow: visible;
+  /* Ensure proper container behavior */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Loading and Error States */
@@ -208,6 +213,9 @@
   /* Ensure all content is fully visible */
   overflow: visible;
   word-wrap: break-word;
+  /* Prevent horizontal overflow */
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .job-section {
@@ -298,11 +306,14 @@
   font-family: 'Courier New', monospace;
   font-size: 0.95rem;
   /* Improved word breaking for long URLs/emails */
-  word-break: break-word;
-  overflow-wrap: break-word;
+  word-break: break-all;
+  overflow-wrap: anywhere;
   /* Ensure content is fully visible */
   white-space: normal;
   overflow: visible;
+  /* Prevent horizontal scrolling */
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .careers-link {
