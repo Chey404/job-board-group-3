@@ -15,7 +15,8 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  /* Remove overflow hidden to prevent content truncation */
+  overflow: visible;
 }
 
 /* Loading and Error States */
@@ -97,6 +98,10 @@
   color: #212529;
   margin: 0 0 0.75rem 0;
   line-height: 1.2;
+  /* Ensure long titles wrap properly */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .company-info {
@@ -110,6 +115,10 @@
   font-weight: 600;
   color: #495057;
   margin: 0;
+  /* Ensure long company names wrap properly */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .industry {
@@ -196,6 +205,9 @@
 /* Job Content */
 .job-content {
   padding: 2rem;
+  /* Ensure all content is fully visible */
+  overflow: visible;
+  word-wrap: break-word;
 }
 
 .job-section {
@@ -215,11 +227,24 @@
   border-bottom: 2px solid #007bff;
 }
 
+.job-description {
+  /* Ensure no text truncation occurs */
+  overflow: visible;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
 .job-description p {
   font-size: 1rem;
   line-height: 1.6;
   color: #495057;
   margin-bottom: 1rem;
+  /* Ensure long words don't overflow container */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  /* Allow text to wrap naturally */
+  white-space: normal;
 }
 
 .job-description p:last-child {
@@ -272,7 +297,12 @@
   border: 1px solid #dee2e6;
   font-family: 'Courier New', monospace;
   font-size: 0.95rem;
-  word-break: break-all;
+  /* Improved word breaking for long URLs/emails */
+  word-break: break-word;
+  overflow-wrap: break-word;
+  /* Ensure content is fully visible */
+  white-space: normal;
+  overflow: visible;
 }
 
 .careers-link {
