@@ -1,7 +1,6 @@
 // src/services/adminService.ts
 import * as gql from "./graphqlService";
 import { GraphQLService } from "./graphqlService";
-import type { JobPosting } from "../types";
 
 const call = (doc: string, vars: any) =>
 (gql as any).gqlRequest?.(doc, vars) ??
@@ -147,20 +146,16 @@ export async function getJobAdmin(id: string): Promise<AdminJob> {
   if (!job) throw new Error("Job not found");
 
   return {
-    id: job.id,
-    title: job.title,
-    companyName: job.company ?? "—",
-    description: job.description ?? null,
-    postedDate: job.createdAt ?? null,
-    reviewedDate: job.updatedAt ?? null,
-    expirationDate: job.deadline ?? null,
-    status:
-      job.status === "APPROVED" ? "ACTIVE" :
-      job.status === "ARCHIVED" ? "ARCHIVED" :
-      "PENDING",
-    creator: job.postedBy ?? null,
-  };
-}
+  id: job.id,
+  title: job.title,
+  companyName: job.company ?? "—",
+  description: job.description ?? null,
+  postedDate: job.createdAt ?? null,
+  reviewedDate: job.updatedAt ?? null,
+  expirationDate: job.deadline ?? null,
+  status: job.status as "PENDING" | "APPROVED" | "ARCHIVED",
+  creator: job.postedBy ?? null,
+};
 
 export async function updateJobAdmin(input: AdminJobInput): Promise<AdminJob> {
  const payload: any = {
