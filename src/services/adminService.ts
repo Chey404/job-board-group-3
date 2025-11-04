@@ -145,18 +145,18 @@ export async function getJobAdmin(id: string): Promise<AdminJob> {
   const job = await GraphQLService.getJobById(id);
   if (!job) throw new Error("Job not found");
 
-  return {
-  id: job.id,
-  title: job.title,
-  companyName: job.company ?? "—",
-  description: job.description ?? null,
-  postedDate: job.createdAt ?? null,
-  reviewedDate: job.updatedAt ?? null,
-  expirationDate: job.deadline ?? null,
-  status: job.status as "PENDING" | "APPROVED" | "ARCHIVED",
-  creator: job.postedBy ?? null,
-};
-
+    return {
+    id: job.id,
+    title: job.title,
+    companyName: job.company ?? "—",
+    description: job.description ?? null,
+    postedDate: job.createdAt ?? null,
+    reviewedDate: job.updatedAt ?? null,
+    expirationDate: job.deadline ?? null,
+    status: job.status as "PENDING" | "APPROVED" | "ARCHIVED",
+    creator: job.postedBy ?? null,
+  };
+}
 export async function updateJobAdmin(input: AdminJobInput): Promise<AdminJob> {
  const payload: any = {
     id: input.id,
