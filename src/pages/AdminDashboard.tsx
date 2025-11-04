@@ -34,7 +34,7 @@ export default function AdminDashboard() {
     if (!user || user.role !== "ADMIN") navigate("/signin");
   }, [user, navigate]);
 
-  const [filters, setFilters] = useState<Filters>({ status: "All" });
+  const [filters, setFilters] = useState<Filters>({ status: "ALL" });
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState<AdminJob[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
