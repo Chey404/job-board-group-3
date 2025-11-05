@@ -28,8 +28,6 @@ export default function EditJobPage() {
         title: j.title ?? "",
         companyName: j.companyName ?? "",
         description: j.description ?? "",
-        postedDate: j.postedDate ?? new Date().toISOString(),
-        reviewedDate: j.reviewedDate ?? null,
         expirationDate: j.expirationDate ?? null,
         status: j.status ?? "PENDING",
       });
@@ -53,13 +51,21 @@ export default function EditJobPage() {
     );
   }
 
+  //Converts Date String to full ISO String to Prevent Hang on Save
+  const toIsoDateOrNull = (d?: string | null) =>
+  d ? new Date(`${d}T00:00:00Z`).toISOString() : null;
+
   const save = async () => {
     setSaving(true);
-    await updateJobAdmin(form);
+    await updateJobAdmin({
+      ...form,
+      expirationDate: toIsoDateOrNull(form.expirationDate),
+    });
     setSaving(false);
     alert("Saved");
     navigate("/admin");
   };
+
 
   const remove = async () => {
     if (!form?.id) return;
@@ -108,32 +114,12 @@ export default function EditJobPage() {
               </div>
 
               {/* Dates */}
-              <div>
-                <label htmlFor="postedDate">Posted Date</label>
-                <input
-                  id="postedDate"
-                  type="date"
-                  value={(form.postedDate ?? "").slice(0, 10)}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...(f as AdminJobInput), postedDate: e.target.value }))
-                  }
-                />
-              </div>
-
-              <div>
-                <label htmlFor="reviewedDate">Reviewed Date</label>
-                <input
-                  id="reviewedDate"
-                  type="date"
-                  value={(form.reviewedDate ?? "").slice(0, 10)}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...(f as AdminJobInput),
-                      reviewedDate: e.target.value || null,
-                    }))
-                  }
-                />
-              </div>
+              
+                {/* Read-only meta */}
+                <div className="meta-row">
+                  <span>Posted: {form.postedDate ? new Date(form.postedDate).toLocaleDateString() : "—"}</span>
+                  <span>Reviewed: {form.reviewedDate ? new Date(form.reviewedDate).toLocaleDateString() : "—"}</span>
+                </div>
 
               <div>
                 <label htmlFor="expirationDate">Expiration Date</label>
