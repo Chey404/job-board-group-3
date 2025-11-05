@@ -63,6 +63,26 @@ export const mockJobPostings: JobPosting[] = [
     applicationCount: 8,
     createdAt: '2024-09-22T14:30:00Z',
     updatedAt: '2024-09-22T14:30:00Z'
+  },
+  {
+    id: '3',
+    title: 'Senior Full-Stack Developer with Extensive Experience in Modern Web Technologies and Cloud Architecture',
+    company: 'GlobalTech Innovations International Corporation',
+    industry: 'Technology & Software Development',
+    jobType: 'FULL_TIME',
+    description: 'We are looking for an exceptional Senior Full-Stack Developer to join our rapidly expanding engineering team. This position offers an incredible opportunity to work with cutting-edge technologies including React, Node.js, TypeScript, AWS, Docker, Kubernetes, and microservices architecture. You will be responsible for designing and implementing scalable web applications that serve millions of users worldwide. The ideal candidate will have extensive experience in both frontend and backend development, with a strong understanding of modern software engineering practices, test-driven development, continuous integration and deployment, and agile methodologies. You will collaborate closely with product managers, designers, and other engineers to deliver high-quality software solutions that meet our customers\' needs and exceed their expectations.',
+    skills: ['React', 'Node.js', 'TypeScript', 'AWS', 'Docker', 'Kubernetes', 'PostgreSQL', 'MongoDB', 'GraphQL', 'Jest', 'Cypress', 'Git', 'Agile', 'TDD', 'CI/CD'],
+    deadline: '2024-11-30T23:59:59Z',
+    contactMethod: {
+      type: 'EMAIL',
+      value: 'senior-developer-applications@globaltechinnovationsinternationalcorporation.com'
+    },
+    postedBy: '2',
+    status: 'APPROVED',
+    viewCount: 89,
+    applicationCount: 23,
+    createdAt: '2024-09-25T09:00:00Z',
+    updatedAt: '2024-09-25T09:00:00Z'
   }
 ];
 
@@ -70,12 +90,12 @@ export const mockJobPostings: JobPosting[] = [
 export const mockLogin = async (email: string, password: string): Promise<User> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1000));
-  
+
   // Simple mock authentication
   const user = mockUsers.find(u => u.email === email);
   if (user && password === 'password123') {
     return user;
   }
-  
+
   throw new Error('Invalid email or password');
 };
