@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import './SignInPage.css';
 
-const SignInPage: React.FC = () => {
+  const SignInPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -12,11 +12,17 @@ const SignInPage: React.FC = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
-    }
-  }, [isAuthenticated, navigate]);
+useEffect(() => {
+  if (!isAuthenticated) return;
+  const stored = localStorage.getItem('user');
+  const currentUser = stored ? JSON.parse(stored) : null;
+  const role = currentUser?.role;
+
+  if (role === 'ADMIN')       navigate('/admin',   { replace: true });
+  else if (role === 'STUDENT') navigate('/student', { replace: true });
+  else if (role === 'COMPANY') navigate('/company', { replace: true });
+  else                         navigate('/',        { replace: true });
+}, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +31,6 @@ const SignInPage: React.FC = () => {
 
     try {
       await login(email, password);
-      navigate('/dashboard');
     } catch (err: any) {
       console.error('Sign in error:', err);
       setError(err.message || 'Invalid email or password. Please try again.');
