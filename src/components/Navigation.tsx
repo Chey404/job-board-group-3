@@ -48,6 +48,7 @@ const Navigation: React.FC = () => {
         { id: 'manage-jobs', label: 'Manage Jobs', route: '/admin', roles: ['ADMIN'] },
         { id: 'users-roles', label: 'Users & Roles', route: '/admin/users', roles: ['ADMIN'] },
         { id: 'create-job', label: 'Create Job Post', route: '/create-job', roles: ['ADMIN'] },
+        { id: 'my-jobs', label: 'My Postings', route: '/my-job-postings', roles: ['ADMIN'] },
         { id: 'profile', label: 'My Profile', route: '/profile', roles: ['ADMIN'] },
       ];
     }
