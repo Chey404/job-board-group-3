@@ -14,6 +14,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import AdminDashboard from './pages/AdminDashboard';
 import EditJobPage from './pages/EditJobPage';
+import UsersRolesPage from './pages/UsersRolesPage';
 
 import './App.css';
 
@@ -81,6 +82,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute>
+                    <UsersRolesPage />
                   </ProtectedRoute>
                 }
               />
