@@ -1,0 +1,98 @@
+/* Page shell to match student dashboard */
+.dashboard-container {
+  min-height: 100vh;
+  background-color: #f7f7f7;
+}
+
+.dashboard-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  padding-top: 5rem; /* space for Navigation */
+}
+
+.page-title {
+  color: #2d3748;
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+}
+
+/* Card + form */
+.form-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1rem;
+}
+
+.form-grid .full { grid-column: 1 / -1; }
+
+label {
+  display: block;
+  color: #2d3748;
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="number"],
+textarea,
+select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  color: #2d3748;
+}
+
+textarea { min-height: 120px; resize: vertical; }
+
+/* Actions */
+.form-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.btn { border: none; padding: 0.6rem 0.9rem; border-radius: 10px; cursor: pointer; font: inherit; }
+.btn-primary { background: #ba0c2f; color: #fff; }
+.btn-danger  { background: #ef4444; color: #fff; }
+
+/* Loading state like student */
+.loading-state {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #718096;
+}
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #ba0c2f;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive like student */
+@media (max-width: 900px) {
+  .form-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .page-title { font-size: 1.5rem; }
+  .dashboard-main { padding: 1rem; padding-top: 4rem; }
+}
+@media (max-width: 480px) {
+  .dashboard-main { padding: 0.5rem; padding-top: 3rem; }
+}

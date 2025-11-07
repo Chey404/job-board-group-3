@@ -1,0 +1,242 @@
+Delta: andy_branch vs main
+
+Last updated: Nov 5, 2025
+
+Summary
+
+This branch introduces role-aware routing, an Admin Dashboard + Edit Job flow, admin data services layered on top of the existing GraphQL service, and navigation that adapts to user roles. It also aligns the admin UI styling with the Student Dashboard’s CSS patterns.
+
+Major additions
+
+src/pages/AdminDashboard.tsx (new screen; filtered/sortable job table, user role table, platform settings stub)
+
+src/pages/EditJobPage.tsx (edit/delete job page)
+
+src/services/adminService.ts (admin-facing data helpers backed by GraphQLService)
+
+src/pages/AdminDashboard.css and src/pages/EditJobPage.css
+
+Role-aware navigation items for ADMIN
+
+Major refactors
+
+src/pages/SignInPage.tsx (redirect logic after successful login; cleaned unused imports/vars)
+
+src/App.tsx (role landing & protected admin routes; removed duplicate root route)
+
+src/components/ProtectedRoute.tsx (preserves from location; consistent guard)
+
+src/components/Navigation.tsx (role-based tabs via getTabsForRole)
+
+File-by-file changes
+1) src/App.tsx
+
+What changed
+
+Added a RoleLanding component that reads AuthContext and routes users by role:
+
+ADMIN → /admin
+
+STUDENT → /dashboard
+
+COMPANY (placeholder) → /company
+
+Ensured admin pages are behind <ProtectedRoute>:
+
+/admin
+
+/admin/jobs/:id
+
+Removed duplicate root routing (kept a single default → /dashboard or RoleLanding pattern, whichever you kept last).
+
+Why
+
+Centralizes initial “where should this user land?” logic.
+
+Keeps admin pages protected and directly addressable.
+
+Gotchas
+
+Don’t define two <Route path="/" …> entries; keep one: either <RoleLanding/> or <Navigate to="/dashboard"/>.
+
+2) src/components/ProtectedRoute.tsx
+
+What changed
+
+Keeps the basic “loading → signin redirect → children” flow.
+
+Preserves location in state when redirecting to /signin so that, after auth, users can be sent back (we leveraged this in earlier steps).
+
+Why
+
+Better UX: users return to the page they wanted after login.
+
+3) src/pages/SignInPage.tsx
+
+What changed
+
+On submit, after login(email, password), we compute role and redirect:
+
+ADMIN → /admin
+
+STUDENT → /student or /dashboard (depending on your current choice)
+
+COMPANY → /company (placeholder)
+
+Cleaned up unused useLocation / from where not needed (to fix TS6133).
+
+Removed duplicate login() call and duplicate navigate().
+
+Why
+
+Deterministic, role-based landing right after sign-in.
+
+Fixes TypeScript “declared but never read” errors in Vite+TS builds.
+
+4) src/components/Navigation.tsx
+
+What changed
+
+Introduced getTabsForRole() to compute tabs by role.
+
+ADMIN sees options including:
+
+“DawgsConnect” → /dashboard
+
+“Create Job Posting” → /create-job
+
+“My Job Postings” → /my-job-postings
+
+(Plus we discussed adding “Admin Home” → /admin and, optionally, “Review Queue” if you want a quick filter view).
+
+Preserves the existing logout and user info display.
+
+Why
+
+Single component supports multiple roles without forks.
+
+Gotchas
+
+Import useMemo if you memoize tabs, or just compute inline (we ended up keeping it simple).
+
+Keep your active-tab calculation in sync with the routes you expose.
+
+5) src/pages/AdminDashboard.tsx
+
+What changed
+
+New page with:
+
+Filters: search/company/creator/status/date range (postedFrom/postedTo)
+
+Sortable table of jobs (click column headers)
+
+Actions: Approve (sets status APPROVED), Archive (ARCHIVED), Edit, Remove
+
+Users & Roles table (reads from optional admin endpoints; safe fallback to empty)
+
+Platform Settings stub (reads/writes via optional admin endpoints; safe fallback)
+
+Uses shared <Navigation/>.
+
+CSS extracted to AdminDashboard.css following the Student Dashboard style language.
+
+Why
+
+Provide an admin control panel that can function even if certain admin resolvers aren’t implemented (we fallback to generic GraphQLService where needed).
+
+Gotchas
+
+Status vocabulary unified to backend enums (PENDING | APPROVED | ARCHIVED). We removed “ACTIVE” in admin layer to avoid TS/type mismatches.
+
+Filtering by status:
+
+APPROVED uses GraphQLService.getApprovedJobs().
+
+PENDING & ARCHIVED are filtered client-side after fetching all (until you wire server-side filters).
+
+Creator vs Company:
+
+Company = the “company” string on the posting (e.g., “TechCorp Solutions”).
+
+Creator = the user identifier who posted (postedBy/email). Useful to find all jobs submitted by a particular company rep.
+
+6) src/pages/EditJobPage.tsx
+
+What changed
+
+Loads a job by id and populates a simple form.
+
+Editable fields:
+
+title, companyName, description, status
+
+Dates note: underlying data model assigns createdAt/updatedAt (system managed). We left UI date inputs in place for appearance, but the actual persisted fields the backend recognizes are deadline (maps to our expirationDate). Editing postedDate/reviewedDate is generally not persisted unless you’ve added API support.
+
+Save/Delete buttons call adminService which proxies to GraphQLService.updateJob/deleteJob.
+
+Why
+
+Provide a clean, minimal edit flow that aligns with how Student Dashboard creates/reads jobs.
+
+Gotchas
+
+If editing dates appears to “hang,” it’s likely the API is ignoring those system fields. We kept only deadline as the meaningful date to persist. You can safely remove the other two date inputs if you don’t need them.
+
+7) src/services/adminService.ts
+
+What changed
+
+Rewrote to sit on top of GraphQLService (Amplify Data client) instead of raw string GraphQL docs.
+
+Exposes:
+
+listJobsAdmin(filters) → builds a base dataset (getApprovedJobs() or listAllJobs()) then applies client-side filters; maps to AdminJob.
+
+getJobAdmin(id) → fetch & map.
+
+updateJobAdmin(input) → converts AdminJobInput to backend shape (company, deadline, etc.), calls GraphQLService.updateJob, maps response.
+
+updateJobStatusAdmin(id, status) → calls updateJob with { status }.
+
+deleteJobAdmin(id) → deletes by id.
+
+listUsersAdmin, updateUserRoleAdmin, getPlatformSettings, updatePlatformSettings → attempt optional admin endpoints; safe fallbacks where possible.
+
+Why
+
+Keep the Admin UI unblocked even if custom admin GraphQL endpoints aren’t implemented yet.
+
+Unify enums to backend (PENDING | APPROVED | ARCHIVED) to eliminate type errors.
+
+8) src/services/graphqlService.ts
+
+What changed (referenced, not fully modified here)
+
+Already present in main, but we rely on:
+
+getApprovedJobs()
+
+listAllJobs() (added or used by us; if you didn’t have it originally, we introduced it)
+
+getJobById(id)
+
+updateJob(id, updates)
+
+deleteJob(id)
+
+Why
+
+Single source of truth for data access (Amplify Data/Model client).
+
+Student and Admin both ride on this layer.
+
+9) CSS
+
+What changed
+
+AdminDashboard.css & EditJobPage.css added to mirror Student Dashboard’s look:
+
+.dashboard-container, .dashboard-main, .page-title, .section, .table-card, .btn, .loading-state, etc.
+
+Kept naming and spacing comparable to StudentDashboard.css.
