@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import { GraphQLService } from "../services/graphqlService";
-import { JobPosting, ContactMethod } from "../types";
+import { JobPosting } from "../types";
 import Navigation from "../components/Navigation";
 import "./EditJobPage.css";
 
