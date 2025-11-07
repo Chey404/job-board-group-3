@@ -2,13 +2,13 @@
 
 ## Introduction
 
-The Student Job Board is a comprehensive web application designed for a capstone project that connects students with job opportunities posted by faculty, staff, board members, and company representatives. The platform features multi-role user management (Student, Faculty/Staff, Company Representative, Admin), job posting and approval workflows, comprehensive job posting requirements, and automated archiving of expired jobs. This initial phase focuses on building the frontend foundation with React, establishing core navigation, authentication UI, and the main job browsing interface that will support the full feature set.
+The Student Job Board is a comprehensive web application designed for a capstone project that connects MIS (Management Information Systems) students with job opportunities posted by administrators and company representatives. The platform features multi-role user management (Student, Company Representative, Admin), job posting and approval workflows, comprehensive job posting requirements, and automated archiving of expired jobs. This initial phase focuses on building the frontend foundation with React, establishing core navigation, authentication UI, and the main job browsing interface that will support the full feature set.
 
 ## Requirements
 
 ### Requirement 1
 
-**User Story:** As a user (student, faculty, staff, company representative, or admin), I want to sign in to the job board platform with role-based access, so that I can access features appropriate to my role.
+**User Story:** As a user (MIS student, company representative, or admin), I want to sign in to the job board platform with role-based access, so that I can access features appropriate to my role.
 
 #### Acceptance Criteria
 
@@ -17,11 +17,11 @@ The Student Job Board is a comprehensive web application designed for a capstone
 3. WHEN a user interacts with the sign-in form THEN the system SHALL provide clear visual feedback for form validation
 4. WHEN a user submits valid credentials THEN the system SHALL redirect them to the appropriate dashboard based on their role
 5. IF a user enters invalid credentials THEN the system SHALL display appropriate error messages
-6. WHEN a user signs in THEN the system SHALL establish their role (Student, Faculty/Staff, Company Representative, or Admin)
+6. WHEN a user signs in THEN the system SHALL establish their role (Student, Company Representative, or Admin)
 
 ### Requirement 2
 
-**User Story:** As a student, I want to browse and search available job opportunities, so that I can find positions that match my interests and qualifications.
+**User Story:** As an MIS student, I want to browse and search available job opportunities, so that I can find positions that match my interests and qualifications.
 
 #### Acceptance Criteria
 
@@ -35,15 +35,15 @@ The Student Job Board is a comprehensive web application designed for a capstone
 
 ### Requirement 3
 
-**User Story:** As faculty/staff, I want to post, edit, and manage job opportunities, so that I can connect students with relevant positions and maintain quality listings.
+**User Story:** As an admin, I want to post, edit, and manage job opportunities, so that I can connect MIS students with relevant positions and maintain quality listings.
 
 #### Acceptance Criteria
 
-1. WHEN faculty/staff access the posting interface THEN the system SHALL provide a comprehensive job posting form
+1. WHEN admin access the posting interface THEN the system SHALL provide a comprehensive job posting form
 2. WHEN creating a job posting THEN the system SHALL require job title, company name & industry, job type, description, required skills, application deadline, and contact method
-3. WHEN faculty/staff submit a posting THEN the system SHALL make it immediately live on the job board
-4. WHEN faculty/staff view their postings THEN the system SHALL allow editing and removal of their own opportunities
-5. WHEN external postings require approval THEN the system SHALL provide faculty/staff with moderation capabilities
+3. WHEN admin submit a posting THEN the system SHALL make it immediately live on the job board
+4. WHEN admin view their postings THEN the system SHALL allow editing and removal of their own opportunities
+5. WHEN external postings require approval THEN the system SHALL provide admin with moderation capabilities
 6. WHEN reviewing postings THEN the system SHALL ensure quality and compliance standards are met
 
 ### Requirement 4
@@ -79,9 +79,9 @@ The Student Job Board is a comprehensive web application designed for a capstone
 1. WHEN any job is posted THEN the system SHALL enforce required fields: job title, company name & industry, job type, description, required skills, application deadline, and contact method
 2. WHEN job types are specified THEN the system SHALL support Internship, Full-time, and Contract categories
 3. WHEN contact methods are provided THEN the system SHALL support direct recruiter email, company careers page links, and optional phone numbers
-4. WHEN external users post jobs THEN the system SHALL route them through faculty or admin approval before publishing
+4. WHEN external users post jobs THEN the system SHALL route them through admin approval before publishing
 5. WHEN postings reach their application deadline THEN the system SHALL automatically archive them
-6. WHEN jobs are archived THEN the system SHALL store them for reporting but hide them from student view
+6. WHEN jobs are archived THEN the system SHALL store them for reporting but hide them from MIS student view
 
 ### Requirement 7
 
@@ -108,6 +108,18 @@ The Student Job Board is a comprehensive web application designed for a capstone
 5. WHEN components are developed THEN the system SHALL separate concerns appropriately (UI, routing, state management, role management)
 
 ### Requirement 9
+
+**User Story:** As an MIS student, I want to create an account without selecting a major, so that I can access the job board focused specifically on Management Information Systems opportunities.
+
+#### Acceptance Criteria
+
+1. WHEN a student creates an account THEN the system SHALL NOT require major selection as the platform is MIS-focused
+2. WHEN a student accesses the platform THEN the system SHALL assume they are pursuing Management Information Systems
+3. WHEN job postings are displayed THEN the system SHALL prioritize MIS-relevant positions
+4. WHEN account creation occurs THEN the system SHALL collect basic information (name, email, graduation year) without major specification
+5. WHEN students browse jobs THEN the system SHALL show opportunities relevant to MIS curriculum and career paths
+
+### Requirement 10
 
 **User Story:** As a user with accessibility needs, I want the application to be fully accessible, so that I can use all job board features effectively regardless of my abilities.
 

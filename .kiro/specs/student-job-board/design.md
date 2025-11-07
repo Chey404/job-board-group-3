@@ -2,9 +2,9 @@
 
 ## Overview
 
-The Student Job Board is a React-based web application built on AWS Amplify that serves multiple user roles with distinct interfaces and capabilities. The design leverages modern React patterns, TypeScript for type safety, and AWS Amplify for authentication and data management. The architecture supports role-based access control, comprehensive job posting workflows, and scalable component organization.
+The Student Job Board is a React-based web application built on AWS Amplify that serves MIS (Management Information Systems) students and connects them with relevant job opportunities. The design leverages modern React patterns, TypeScript for type safety, and AWS Amplify for authentication and data management. The architecture supports role-based access control with simplified user roles (Student, Company Representative, Admin), comprehensive job posting workflows, and scalable component organization.
 
-The application follows a mobile-first, accessible design approach with clean, professional styling that reflects the academic environment while maintaining ease of use for all user types.
+The application follows a mobile-first, accessible design approach with clean, professional styling that reflects the academic environment while maintaining ease of use for all user types. The platform is specifically tailored for MIS curriculum and career paths.
 
 ## Architecture
 
@@ -21,9 +21,8 @@ graph TB
     C --> G[User Management Data]
     
     E --> H[Student Dashboard]
-    E --> I[Faculty/Staff Dashboard]
-    E --> J[Company Rep Dashboard]
-    E --> K[Admin Dashboard]
+    E --> I[Company Rep Dashboard]
+    E --> J[Admin Dashboard]
     
     F --> L[Job CRUD Operations]
     F --> M[Approval Workflow]
@@ -68,12 +67,13 @@ The application follows a hierarchical component structure with clear separation
 - **JobPostingForm**: Comprehensive form for creating/editing jobs
 - **JobDetails**: Detailed view of individual job postings
 - **JobFilters**: Search and filtering interface
-- **ApprovalQueue**: Interface for faculty/admin to review pending posts
+- **ApprovalQueue**: Interface for admin to review pending posts
 
 #### User Management Components
 - **UserDashboard**: Role-specific dashboard views
 - **UserManagement**: Admin interface for managing users and roles
 - **ProfileSettings**: User profile and preferences management
+- **MISAccountCreation**: Simplified account creation for MIS students without major selection
 
 #### Utility Components
 - **LoadingSpinner**: Consistent loading states
@@ -89,11 +89,12 @@ The application follows a hierarchical component structure with clear separation
 interface User {
   id: string;
   email: string;
-  role: 'student' | 'faculty' | 'staff' | 'company_rep' | 'admin';
+  role: 'student' | 'company_rep' | 'admin';
   firstName: string;
   lastName: string;
-  department?: string;
-  company?: string;
+  graduationYear?: number; // For MIS students
+
+  company?: string; // For company representatives
   createdAt: string;
   lastLogin: string;
 }
@@ -180,6 +181,18 @@ erDiagram
     JobPosting ||--o{ SavedJob : saved_as
 ```
 
+### MIS-Specific Design Considerations
+
+#### Account Creation Simplification
+- **No Major Selection**: Since the platform is MIS-focused, students don't need to specify their major
+- **Graduation Year Focus**: Collect graduation year to help with internship vs full-time job targeting
+- **MIS Curriculum Alignment**: Job categories and skills align with MIS coursework and career paths
+
+#### Job Posting Optimization
+- **MIS-Relevant Categories**: Job types and industries relevant to MIS graduates
+- **Skills Taxonomy**: Pre-defined skill sets that align with MIS curriculum
+- **Career Path Guidance**: Job postings categorized by typical MIS career trajectories
+
 ## Error Handling
 
 ### Error Categories
@@ -255,9 +268,10 @@ erDiagram
 
 #### Job Management Testing
 - Job posting creation and validation
-- Approval workflow testing
+- Approval workflow testing (admin approval)
 - Search and filtering functionality
 - Auto-archiving behavior
+- MIS-specific job categorization and filtering
 
 #### User Interface Testing
 - Responsive design across devices
