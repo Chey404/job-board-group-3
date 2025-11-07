@@ -1,7 +1,8 @@
 import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
-import { getJobAdmin,  updateJobAdmin,  deleteJobAdmin,  type AdminJobInput, } from "../services/adminService";
+import { GraphQLService } from "../services/graphqlService";
+import { JobPosting } from "../types";
 import Navigation from "../components/Navigation";
 import "./EditJobPage.css";
 
@@ -10,8 +11,9 @@ export default function EditJobPage() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [form, setForm] = useState<AdminJobInput | null>(null);
+  const [formData, setFormData] = useState<JobPosting | null>(null);
   const [saving, setSaving] = useState(false);
+  const [skillInput, setSkillInput] = useState("");
 
   // Gate non-admins
   useEffect(() => {
@@ -22,20 +24,15 @@ export default function EditJobPage() {
   useEffect(() => {
     (async () => {
       if (!id) return;
-      const j = await getJobAdmin(id);
-      setForm({
-        id: j.id,
-        title: j.title ?? "",
-        companyName: j.companyName ?? "",
-        description: j.description ?? "",
-        expirationDate: j.expirationDate ?? null,
-        status: j.status ?? "PENDING",
-      });
+      const job = await GraphQLService.getJobById(id);
+      if (job) {
+        setFormData(job);
+      }
     })();
   }, [id]);
 
   // Loading UI
-  if (!form) {
+  if (!formData) {
     return (
       <>
         <Navigation />
@@ -51,30 +48,69 @@ export default function EditJobPage() {
     );
   }
 
-  //Converts Date String to full ISO String to Prevent Hang on Save
-  const toIsoDateOrNull = (d?: string | null) =>
-  d ? new Date(`${d}T00:00:00Z`).toISOString() : null;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev!,
+      [name]: value
+    }));
+  };
+
+  const handleContactMethodChange = (field: 'type' | 'value', value: string) => {
+    setFormData(prev => ({
+      ...prev!,
+      contactMethod: {
+        ...prev!.contactMethod,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleAddSkill = () => {
+    if (skillInput.trim() && !formData.skills.includes(skillInput.trim())) {
+      setFormData(prev => ({
+        ...prev!,
+        skills: [...prev!.skills, skillInput.trim()]
+      }));
+      setSkillInput('');
+    }
+  };
+
+  const handleRemoveSkill = (skillToRemove: string) => {
+    setFormData(prev => ({
+      ...prev!,
+      skills: prev!.skills.filter(skill => skill !== skillToRemove)
+    }));
+  };
 
   const save = async () => {
     setSaving(true);
-    await updateJobAdmin({
-      ...form,
-      expirationDate: toIsoDateOrNull(form.expirationDate),
-    });
-    setSaving(false);
-    alert("Saved");
-    navigate("/admin");
+    try {
+      await GraphQLService.updateJob(formData.id, formData);
+      alert("Job updated successfully");
+      navigate("/admin");
+    } catch (err) {
+      alert("Failed to update job. Please try again.");
+      console.error("Error updating job:", err);
+    } finally {
+      setSaving(false);
+    }
   };
 
-
   const remove = async () => {
-    if (!form?.id) return;
+    if (!formData?.id) return;
     if (!confirm("Delete this posting?")) return;
     setSaving(true);
-    await deleteJobAdmin(form.id);
-    setSaving(false);
-    alert("Deleted");
-    navigate("/admin");
+    try {
+      await GraphQLService.deleteJob(formData.id);
+      alert("Job deleted successfully");
+      navigate("/admin");
+    } catch (err) {
+      alert("Failed to delete job. Please try again.");
+      console.error("Error deleting job:", err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -86,99 +122,170 @@ export default function EditJobPage() {
           <h1 className="page-title">Edit Job</h1>
 
           <div className="form-card">
-            <div className="form-grid">
-              {/* Title */}
-              <div className="full">
-                <label htmlFor="title">Job Title</label>
+            <form onSubmit={(e) => { e.preventDefault(); save(); }} className="edit-job-form">
+              {/* Job Title */}
+              <div className="form-group">
+                <label htmlFor="title">Job Title *</label>
                 <input
+                  type="text"
                   id="title"
-                  type="text"
-                  value={form.title ?? ""}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...(f as AdminJobInput), title: e.target.value }))
-                  }
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  required
                 />
               </div>
 
-              {/* Company */}
-              <div className="full">
-                <label htmlFor="companyName">Company Name</label>
-                <input
-                  id="companyName"
-                  type="text"
-                  value={form.companyName ?? ""}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...(f as AdminJobInput), companyName: e.target.value }))
-                  }
-                />
-              </div>
-
-              {/* Dates */}
-              
-                {/* Read-only meta */}
-                <div className="meta-row">
-                  <span>Posted: {form.postedDate ? new Date(form.postedDate).toLocaleDateString() : "—"}</span>
-                  <span>Reviewed: {form.reviewedDate ? new Date(form.reviewedDate).toLocaleDateString() : "—"}</span>
+              {/* Company and Industry */}
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="company">Company *</label>
+                  <input
+                    type="text"
+                    id="company"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleInputChange}
+                    required
+                  />
                 </div>
 
-              <div>
-                <label htmlFor="expirationDate">Expiration Date</label>
-                <input
-                  id="expirationDate"
-                  type="date"
-                  value={(form.expirationDate ?? "").slice(0, 10)}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...(f as AdminJobInput),
-                      expirationDate: e.target.value || null,
-                    }))
-                  }
-                />
+                <div className="form-group">
+                  <label htmlFor="industry">Industry *</label>
+                  <input
+                    type="text"
+                    id="industry"
+                    name="industry"
+                    value={formData.industry}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
               </div>
 
-              {/* Status */}
-              <div>
-                <label htmlFor="status">Status</label>
+              {/* Job Type and Deadline */}
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="jobType">Job Type *</label>
+                  <select
+                    id="jobType"
+                    name="jobType"
+                    value={formData.jobType}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="INTERNSHIP">Internship</option>
+                    <option value="FULL_TIME">Full Time</option>
+                    <option value="CONTRACT">Contract</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="deadline">Application Deadline *</label>
+                  <input
+                    type="date"
+                    id="deadline"
+                    name="deadline"
+                    value={formData.deadline.split('T')[0]}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Status (Admin only) */}
+              <div className="form-group">
+                <label htmlFor="status">Status *</label>
                 <select
                   id="status"
-                  value={form.status ?? "PENDING"}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...(f as AdminJobInput),
-                      status: e.target.value as AdminJobInput["status"],
-                    }))
-                  }
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  required
                 >
                   <option value="PENDING">Pending</option>
-                  <option value="APPROVED">Active</option>
+                  <option value="APPROVED">Approved</option>
                   <option value="ARCHIVED">Archived</option>
                 </select>
               </div>
 
               {/* Description */}
-              <div className="full">
-                <label htmlFor="description">Description</label>
+              <div className="form-group">
+                <label htmlFor="description">Job Description *</label>
                 <textarea
                   id="description"
-                  value={form.description ?? ""}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...(f as AdminJobInput), description: e.target.value }))
-                  }
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows={6}
+                  required
                 />
               </div>
-            </div>
 
-            <div className="form-actions">
-              <button className="btn btn-primary" onClick={save} disabled={saving}>
-                {saving ? "Saving…" : "Save"}
-              </button>
-              <button className="btn" onClick={() => navigate("/admin")} disabled={saving}>
-                Cancel
-              </button>
-              <button className="btn btn-danger" onClick={remove} disabled={saving}>
-                Delete
-              </button>
-            </div>
+              {/* Skills */}
+              <div className="form-group">
+                <label>Required Skills *</label>
+                <div className="skills-input">
+                  <input
+                    type="text"
+                    value={skillInput}
+                    onChange={(e) => setSkillInput(e.target.value)}
+                    placeholder="Add a skill and press Enter"
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
+                  />
+                  <button type="button" onClick={handleAddSkill}>Add</button>
+                </div>
+                <div className="skills-list">
+                  {formData.skills.map((skill, index) => (
+                    <span key={index} className="skill-tag">
+                      {skill}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSkill(skill)}
+                        className="remove-skill"
+                      >
+                        &times;
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Contact Method */}
+              <div className="form-group">
+                <label>Contact Method *</label>
+                <div className="contact-method">
+                  <select
+                    value={formData.contactMethod.type}
+                    onChange={(e) => handleContactMethodChange('type', e.target.value)}
+                    required
+                  >
+                    <option value="EMAIL">Email</option>
+                    <option value="CAREERS_PAGE">Company Career Page</option>
+                  </select>
+                  <input
+                    type={formData.contactMethod.type === 'EMAIL' ? 'email' : 'url'}
+                    value={formData.contactMethod.value}
+                    onChange={(e) => handleContactMethodChange('value', e.target.value)}
+                    placeholder={formData.contactMethod.type === 'EMAIL' ? 'recruiter@company.com' : 'https://company.com/careers'}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Form Actions */}
+              <div className="form-actions">
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? "Saving…" : "Save Changes"}
+                </button>
+                <button type="button" className="btn" onClick={() => navigate("/admin")} disabled={saving}>
+                  Cancel
+                </button>
+                <button type="button" className="btn btn-danger" onClick={remove} disabled={saving}>
+                  Delete
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

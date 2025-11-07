@@ -1,0 +1,234 @@
+/* Page shell matches AdminDashboard and StudentDashboard */
+.dashboard-container {
+  min-height: 100vh;
+  background-color: #f7f7f7;
+  padding: 2rem 1rem;
+  padding-top: 5rem; /* space under Navigation */
+}
+
+/* Titles/sections */
+.page-title {
+  color: #2d3748;
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 0 2rem 0;
+}
+
+.section {
+  flex: 1;
+  margin-bottom: 2rem;
+}
+
+/* Feedback message */
+.feedback-message {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.feedback-message.success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #10b981;
+}
+
+.feedback-message.error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+/* Table card matching AdminDashboard */
+.table-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead th {
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2d3748;
+  padding: 0.9rem 0.9rem;
+  background: #f7f7f7;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.table tbody td {
+  padding: 0.9rem 0.9rem;
+  border-top: 1px solid #edf2f7;
+  color: #2d3748;
+  vertical-align: middle;
+}
+
+/* Role selector */
+.role-selector {
+  width: 100%;
+  max-width: 150px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  color: #2d3748;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.role-selector:hover {
+  border-color: #ba0c2f;
+}
+
+.role-selector:focus {
+  outline: none;
+  border-color: #ba0c2f;
+  box-shadow: 0 0 0 3px rgba(186, 12, 47, 0.1);
+}
+
+/* Empty state matching AdminDashboard */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.empty-state h3 {
+  color: #2d3748;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+  color: #718096;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Error state */
+.error-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.error-state h3 {
+  color: #2d3748;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.error-state p {
+  color: #718096;
+  font-size: 1rem;
+  margin: 0 0 1.5rem 0;
+}
+
+/* Loading state matching AdminDashboard */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #ba0c2f;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-state p {
+  color: #718096;
+  font-size: 1.125rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Buttons matching AdminDashboard */
+.btn {
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #ba0c2f;
+  color: #fff;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .dashboard-container {
+    padding: 1rem;
+    padding-top: 4rem;
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: 0.7rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .role-selector {
+    max-width: 120px;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 0.5rem;
+    padding-top: 3rem;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .table-responsive {
+    font-size: 0.8rem;
+  }
+}

@@ -1,6 +1,8 @@
 .dashboard-container {
   min-height: 100vh;
   background-color: #f7f7f7;
+  margin: 0;
+  padding: 0;
 }
 
 .welcome-section {
@@ -24,7 +26,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
-  padding-top: 5rem;
+  padding-top: 2rem;
 }
 
 .dashboard-content {

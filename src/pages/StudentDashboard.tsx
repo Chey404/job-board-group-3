@@ -75,46 +75,48 @@ const StudentDashboard: React.FC = () => {
 
 
   return (
-    <div className="dashboard-container">
+    <>
       <Navigation />
+      
+      <div className="dashboard-container">
+        <main className="dashboard-main">
+          <div className="dashboard-content">
+            <div className="welcome-section">
+              <h1>Welcome back, {user?.firstName}!</h1>
+              <p>Discover your next opportunity with DawgsConnect</p>
+            </div>
 
-      <main className="dashboard-main">
-        <div className="dashboard-content">
-          <div className="welcome-section">
-            <h1>Welcome back, {user?.firstName}!</h1>
-            <p>Discover your next opportunity with DawgsConnect</p>
+            <JobFilters
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              selectedJobType={selectedJobType}
+              onJobTypeChange={setSelectedJobType}
+              selectedIndustry={selectedIndustry}
+              onIndustryChange={setSelectedIndustry}
+              jobCount={filteredJobs.length}
+            />
+
+            <div className="jobs-section">
+              {filteredJobs.length === 0 ? (
+                <div className="empty-state">
+                  <h3>No jobs found</h3>
+                  <p>Try adjusting your search criteria or check back later for new opportunities.</p>
+                </div>
+              ) : (
+                <div className="jobs-grid">
+                  {filteredJobs.map(job => (
+                    <JobCard
+                      key={job.id}
+                      job={job}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-
-          <JobFilters
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            selectedJobType={selectedJobType}
-            onJobTypeChange={setSelectedJobType}
-            selectedIndustry={selectedIndustry}
-            onIndustryChange={setSelectedIndustry}
-            jobCount={filteredJobs.length}
-          />
-
-          <div className="jobs-section">
-            {filteredJobs.length === 0 ? (
-              <div className="empty-state">
-                <h3>No jobs found</h3>
-                <p>Try adjusting your search criteria or check back later for new opportunities.</p>
-              </div>
-            ) : (
-              <div className="jobs-grid">
-                {filteredJobs.map(job => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   );
 };
 
