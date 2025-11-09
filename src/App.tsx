@@ -15,6 +15,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import AdminDashboard from './pages/AdminDashboard';
 import EditJobPage from './pages/EditJobPage';
 import UsersRolesPage from './pages/UsersRolesPage';
+import MyProfilePage from './pages/MyProfilePage';
 
 import './App.css';
 
@@ -98,6 +99,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <EditJobPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <MyProfilePage />
                   </ProtectedRoute>
                 }
               />
