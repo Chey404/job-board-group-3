@@ -29,3 +29,9 @@ dist-ssr
 amplify_outputs*
 amplifyconfiguration*
 .kiro/specs/
+
+#MISC
+awscli-bundle.zip
+awscli-bundle/
+python
+python3.9

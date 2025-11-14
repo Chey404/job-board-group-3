@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
-import { GraphQLService } from "../services/graphqlService";
+import { DataService } from "../services/dataService";
 import { JobPosting } from "../types";
 import Navigation from "../components/Navigation";
 import "./EditJobPage.css";
@@ -24,7 +24,7 @@ export default function EditJobPage() {
   useEffect(() => {
     (async () => {
       if (!id) return;
-      const job = await GraphQLService.getJobById(id);
+      const job = await DataService.getJobById(id);
       if (job) {
         setFormData(job);
       }
@@ -86,7 +86,7 @@ export default function EditJobPage() {
   const save = async () => {
     setSaving(true);
     try {
-      await GraphQLService.updateJob(formData.id, formData);
+      await DataService.updateJob(formData.id, formData);
       alert("Job updated successfully");
       navigate("/admin");
     } catch (err) {
@@ -102,7 +102,7 @@ export default function EditJobPage() {
     if (!confirm("Delete this posting?")) return;
     setSaving(true);
     try {
-      await GraphQLService.deleteJob(formData.id);
+      await DataService.deleteJob(formData.id);
       alert("Job deleted successfully");
       navigate("/admin");
     } catch (err) {

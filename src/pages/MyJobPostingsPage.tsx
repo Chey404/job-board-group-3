@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { GraphQLService } from '../services/graphqlService';
+import { DataService } from '../services/dataService';
 import { JobPosting } from '../types';
 import Navigation from '../components/Navigation';
 import './MyJobPostingsPage.css';
@@ -21,12 +21,12 @@ const MyJobPostingsPage: React.FC = () => {
 
   const fetchUserJobs = async () => {
     if (!user?.email) return;
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
-      const jobs = await GraphQLService.getUserJobs(user.email);
+      const jobs = await DataService.getUserJobs(user.email);
       setJobPostings(jobs);
     } catch (err) {
       setError('Failed to load job postings. Please try again.');
@@ -77,7 +77,7 @@ const MyJobPostingsPage: React.FC = () => {
     }
 
     try {
-      await GraphQLService.updateJob(jobId, { status: 'ARCHIVED' });
+      await DataService.updateJob(jobId, { status: 'ARCHIVED' });
       await fetchUserJobs(); // Refresh the list
     } catch (err) {
       setError('Failed to archive job posting. Please try again.');
@@ -92,8 +92,8 @@ const MyJobPostingsPage: React.FC = () => {
         ...updatedJob,
         status: 'PENDING' as const
       };
-      
-      await GraphQLService.updateJob(updatedJob.id, jobUpdate);
+
+      await DataService.updateJob(updatedJob.id, jobUpdate);
       setShowEditModal(false);
       setEditingJob(null);
       await fetchUserJobs(); // Refresh the list

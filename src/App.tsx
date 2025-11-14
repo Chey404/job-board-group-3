@@ -15,6 +15,10 @@ import ErrorBoundary from './components/ErrorBoundary';
 import AdminDashboard from './pages/AdminDashboard';
 import EditJobPage from './pages/EditJobPage';
 import UsersRolesPage from './pages/UsersRolesPage';
+import MyProfilePage from './pages/MyProfilePage';
+import MetricsPage from './pages/MetricsPage';
+import SeedDataPage from './pages/SeedDataPage';
+import MockDataTogglePage from './pages/MockDataTogglePage';
 
 import './App.css';
 
@@ -94,10 +98,42 @@ function App() {
                 }
               />
               <Route
+                path="/admin/metrics"
+                element={
+                  <ProtectedRoute>
+                    <MetricsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/seed-data"
+                element={
+                  <ProtectedRoute>
+                    <SeedDataPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/mock-data"
+                element={
+                  <ProtectedRoute>
+                    <MockDataTogglePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/admin/jobs/:id"
                 element={
                   <ProtectedRoute>
                     <EditJobPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <MyProfilePage />
                   </ProtectedRoute>
                 }
               />

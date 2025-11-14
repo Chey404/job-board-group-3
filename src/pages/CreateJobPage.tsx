@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import { useAuth } from '../hooks/useAuth';
-import { GraphQLService } from '../services/graphqlService';
+import { DataService } from '../services/dataService';
 import './CreateJobPage.css';
 
 interface FormData {
@@ -210,8 +210,8 @@ const CreateJobPage: React.FC = () => {
         status: 'APPROVED' as const // Auto-approve for now
       };
 
-      await GraphQLService.createJob(jobData);
-      
+      await DataService.createJob(jobData);
+
       // Show success message
       alert('Job posting created successfully and is now live!');
       
