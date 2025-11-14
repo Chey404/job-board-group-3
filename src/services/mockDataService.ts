@@ -1,4 +1,4 @@
-import { JobPosting, User } from '../types';
+import { JobPosting } from '../types';
 
 // Mock job postings data stored in localStorage
 const MOCK_JOBS_KEY = 'mock_job_postings';
