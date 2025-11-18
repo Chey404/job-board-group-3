@@ -44,15 +44,9 @@ const MyProfilePage: React.FC = () => {
 
   const loadJobPostingsCount = async () => {
     if (!user?.email) return;
-<<<<<<< HEAD
 
     try {
       const jobs = await DataService.getUserJobs(user.email);
-=======
-    
-    try {
-      const jobs = await GraphQLService.getUserJobs(user.email);
->>>>>>> origin/main
       setJobPostingsCount(jobs.length);
     } catch (error) {
       console.error('Failed to load job postings count:', error);
@@ -93,13 +87,8 @@ const MyProfilePage: React.FC = () => {
         updates.industry = formData.industry;
       }
 
-<<<<<<< HEAD
       await DataService.updateUserProfile(user.email, updates);
 
-=======
-      await GraphQLService.updateUserProfile(user.email, updates);
-      
->>>>>>> origin/main
       // Update local storage
       const updatedUser = { ...user, ...updates };
       localStorage.setItem('currentUser', JSON.stringify(updatedUser));
