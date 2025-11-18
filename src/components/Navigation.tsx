@@ -100,7 +100,7 @@ const Navigation: React.FC = () => {
     if (!tab) return;
 
     // Placeholder pages (if not implemented yet)
-    if (tab.route === '/applications' || tab.route === '/profile') {
+    if (tab.route === '/applications') {
       alert(`${tab.label} page coming soon!`);
       return;
     }
