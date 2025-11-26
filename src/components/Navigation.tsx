@@ -47,6 +47,7 @@ const Navigation: React.FC = () => {
         { id: 'dawgs-connect', label: 'DawgsConnect', route: '/dashboard', roles: ['ADMIN'] },
         { id: 'manage-jobs', label: 'Manage Jobs', route: '/admin', roles: ['ADMIN'] },
         { id: 'users-roles', label: 'Users & Roles', route: '/admin/users', roles: ['ADMIN'] },
+        { id: 'metrics', label: 'Metrics', route: '/admin/metrics', roles: ['ADMIN'] },
         { id: 'create-job', label: 'Create Job Post', route: '/create-job', roles: ['ADMIN'] },
         { id: 'my-jobs', label: 'My Postings', route: '/my-job-postings', roles: ['ADMIN'] },
         { id: 'profile', label: 'My Profile', route: '/profile', roles: ['ADMIN'] },
@@ -74,6 +75,10 @@ const Navigation: React.FC = () => {
     }
     if (pathname === '/admin/users') {
       setActiveTab('users-roles');
+      return;
+    }
+    if (pathname === '/admin/metrics') {
+      setActiveTab('metrics');
       return;
     }
 

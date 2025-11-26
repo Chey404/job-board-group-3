@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../components/Navigation';
 import JobCard from '../components/JobCard';
 import JobFilters from '../components/JobFilters';
 import { JobPosting } from '../types';
-import { GraphQLService } from '../services/graphqlService';
+import { DataService } from '../services/dataService';
 import './StudentDashboard.css';
 
 const StudentDashboard: React.FC = () => {
@@ -12,43 +13,56 @@ const StudentDashboard: React.FC = () => {
   const [jobs, setJobs] = useState<JobPosting[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<JobPosting[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedJobType, setSelectedJobType] = useState<string>('all');
   const [selectedIndustry, setSelectedIndustry] = useState<string>('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadJobs = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const jobPostings = await DataService.getApprovedJobs();
+      setJobs(jobPostings);
+      setFilteredJobs(jobPostings);
+    } catch (err) {
+      console.error('Failed to load jobs:', err);
+      setJobs([]);
+      setFilteredJobs([]);
+      setError('We could not load jobs right now. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadJobs = async () => {
-      try {
-        const jobPostings = await GraphQLService.getApprovedJobs();
-        console.log('Loaded jobs:', jobPostings); // Debug logging
-        setJobs(jobPostings);
-        setFilteredJobs(jobPostings);
-      } catch (error) {
-        console.error('Failed to load jobs:', error);
-        // Set empty array on error to show empty state
-        setJobs([]);
-        setFilteredJobs([]);
-      }
-    };
-
     loadJobs();
   }, []);
 
+  // Debounce search input to avoid hammering the backend
+  useEffect(() => {
+    const handle = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+    return () => clearTimeout(handle);
+  }, [searchTerm]);
+
   useEffect(() => {
     const filterJobs = async () => {
-      if (searchTerm || selectedJobType !== 'all' || selectedIndustry !== 'all') {
+      if (debouncedSearch || selectedJobType !== 'all' || selectedIndustry !== 'all') {
         try {
-          const filtered = await GraphQLService.searchJobs(searchTerm, selectedJobType, selectedIndustry);
+          const filtered = await DataService.searchJobs(debouncedSearch, selectedJobType, selectedIndustry);
           setFilteredJobs(filtered);
-        } catch (error) {
-          console.error('Failed to filter jobs:', error);
+        } catch (err) {
+          console.error('Failed to filter jobs:', err);
           // Fallback to client-side filtering
           let filtered = jobs;
 
-          if (searchTerm) {
+          if (debouncedSearch) {
+            const q = debouncedSearch.toLowerCase();
             filtered = filtered.filter(job =>
-              job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              job.description.toLowerCase().includes(searchTerm.toLowerCase())
+              job.title.toLowerCase().includes(q) ||
+              job.company.toLowerCase().includes(q) ||
+              job.description.toLowerCase().includes(q)
             );
           }
 
@@ -68,16 +82,62 @@ const StudentDashboard: React.FC = () => {
     };
 
     filterJobs();
-  }, [jobs, searchTerm, selectedJobType, selectedIndustry]);
+  }, [jobs, debouncedSearch, selectedJobType, selectedIndustry]);
 
+  // Optional: block non-students from this page
+  if (user && user.role !== 'STUDENT') {
+    return <Navigate to="/" replace />;
+  }
 
+  if (loading) {
+    return (
+      <>
+        <Navigation />
+        <div className="dashboard-container">
+          <main className="dashboard-main">
+            <div className="dashboard-content">
+              <div className="welcome-section">
+                <h1>Loading opportunities…</h1>
+                <p>Please wait while we fetch the latest jobs.</p>
+              </div>
+              <div className="jobs-section">
+                <div className="empty-state">
+                  <h3>Loading</h3>
+                  <p>Fetching job listings.</p>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </>
+    );
+  }
 
-
+  if (error) {
+    return (
+      <>
+        <Navigation />
+        <div className="dashboard-container">
+          <main className="dashboard-main">
+            <div className="dashboard-content">
+              <div className="welcome-section">
+                <h1>Something went wrong</h1>
+                <p>{error}</p>
+              </div>
+              <button className="apply-button" onClick={loadJobs}>
+                Retry loading jobs
+              </button>
+            </div>
+          </main>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <Navigation />
-      
+
       <div className="dashboard-container">
         <main className="dashboard-main">
           <div className="dashboard-content">

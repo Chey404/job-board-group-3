@@ -1,6 +1,6 @@
 // src/services/adminService.ts
 import * as gql from "./graphqlService";
-import { GraphQLService } from "./graphqlService";
+import { DataService } from "./dataService";
 
 const call = (doc: string, vars: any) =>
 (gql as any).gqlRequest?.(doc, vars) ??
@@ -74,16 +74,16 @@ export async function listJobsAdmin(filters: {
   fromDate?: string;
   toDate?: string;
 }): Promise<AdminJob[]> {
-  // 1) Choose the base dataset from GraphQL (no mocks)
+  // 1) Choose the base dataset (supports both mock and real data)
   let base: any[] = [];
 
   if (!filters.status || filters.status === "ALL") {
-    base = await GraphQLService.listAllJobs();            
+    base = await DataService.listAllJobs();
   } else if (filters.status === "APPROVED") {
-    base = await GraphQLService.getApprovedJobs();       
+    base = await DataService.getApprovedJobs();
   } else {
     // For PENDING / ARCHIVED, fetch all then narrow locally (smallest change)
-    const all = await GraphQLService.listAllJobs();
+    const all = await DataService.listAllJobs();
     const want = filters.status === "PENDING" ? "PENDING" : "ARCHIVED";
     base = all.filter(j => j.status === want);
   }
@@ -142,7 +142,7 @@ export async function listJobsAdmin(filters: {
 }
 
 export async function getJobAdmin(id: string): Promise<AdminJob> {
-  const job = await GraphQLService.getJobById(id);
+  const job = await DataService.getJobById(id);
   if (!job) throw new Error("Job not found");
 
     return {
@@ -166,7 +166,7 @@ export async function updateJobAdmin(input: AdminJobInput): Promise<AdminJob> {
     deadline: input.expirationDate ?? undefined,
     status: input.status, // PENDING | APPROVED | ARCHIVED
   };
-  const updated = await GraphQLService.updateJob(input.id, payload);
+  const updated = await DataService.updateJob(input.id, payload);
   return {
     id: updated.id,
     title: updated.title ?? "",
@@ -184,7 +184,7 @@ export async function updateJobStatusAdmin(
   id: string,
   status: "PENDING" | "APPROVED" | "ARCHIVED"
 ) {
-  const updated = await GraphQLService.updateJob(id, { status });
+  const updated = await DataService.updateJob(id, { status });
   return {
     id: updated.id,
     title: updated.title ?? "",
@@ -199,7 +199,7 @@ export async function updateJobStatusAdmin(
 }
 
 export async function deleteJobAdmin(id: string) {
-  await GraphQLService.deleteJob(id);
+  await DataService.deleteJob(id);
   return { id };
 }
 
