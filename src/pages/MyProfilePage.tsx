@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../components/Navigation';
-import { GraphQLService } from '../services/graphqlService';
+import { DataService } from '../services/dataService';
 import { User } from '../types';
 import './MyProfilePage.css';
 
@@ -44,9 +44,9 @@ const MyProfilePage: React.FC = () => {
 
   const loadJobPostingsCount = async () => {
     if (!user?.email) return;
-    
+
     try {
-      const jobs = await GraphQLService.getUserJobs(user.email);
+      const jobs = await DataService.getUserJobs(user.email);
       setJobPostingsCount(jobs.length);
     } catch (error) {
       console.error('Failed to load job postings count:', error);
@@ -87,8 +87,8 @@ const MyProfilePage: React.FC = () => {
         updates.industry = formData.industry;
       }
 
-      await GraphQLService.updateUserProfile(user.email, updates);
-      
+      await DataService.updateUserProfile(user.email, updates);
+
       // Update local storage
       const updatedUser = { ...user, ...updates };
       localStorage.setItem('currentUser', JSON.stringify(updatedUser));

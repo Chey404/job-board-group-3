@@ -4,7 +4,7 @@ import Navigation from '../components/Navigation';
 import JobCard from '../components/JobCard';
 import JobFilters from '../components/JobFilters';
 import { JobPosting } from '../types';
-import { GraphQLService } from '../services/graphqlService';
+import { DataService } from '../services/dataService';
 import './StudentDashboard.css';
 
 const StudentDashboard: React.FC = () => {
@@ -18,7 +18,7 @@ const StudentDashboard: React.FC = () => {
   useEffect(() => {
     const loadJobs = async () => {
       try {
-        const jobPostings = await GraphQLService.getApprovedJobs();
+        const jobPostings = await DataService.getApprovedJobs();
         console.log('Loaded jobs:', jobPostings); // Debug logging
         setJobs(jobPostings);
         setFilteredJobs(jobPostings);
@@ -37,7 +37,7 @@ const StudentDashboard: React.FC = () => {
     const filterJobs = async () => {
       if (searchTerm || selectedJobType !== 'all' || selectedIndustry !== 'all') {
         try {
-          const filtered = await GraphQLService.searchJobs(searchTerm, selectedJobType, selectedIndustry);
+          const filtered = await DataService.searchJobs(searchTerm, selectedJobType, selectedIndustry);
           setFilteredJobs(filtered);
         } catch (error) {
           console.error('Failed to filter jobs:', error);

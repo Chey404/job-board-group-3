@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { JobPosting } from '../types';
-import { GraphQLService } from '../services/graphqlService';
+import { DataService } from '../services/dataService';
 import Navigation from '../components/Navigation';
 import './JobDetailPage.css';
 
@@ -23,12 +23,12 @@ const JobDetailPage: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         // Increment view count when job is viewed
-        await GraphQLService.incrementJobViewCount(id);
-        
+        await DataService.incrementJobViewCount(id);
+
         // Fetch job details
-        const jobData = await GraphQLService.getJobById(id);
+        const jobData = await DataService.getJobById(id);
         
         if (!jobData) {
           setError('Job not found');
@@ -100,7 +100,7 @@ const JobDetailPage: React.FC = () => {
 
     try {
       // Increment application count
-      await GraphQLService.updateJob(job.id, {
+      await DataService.updateJob(job.id, {
         applicationCount: job.applicationCount + 1
       });
 
