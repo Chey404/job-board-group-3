@@ -398,17 +398,6 @@ const CreateAccountPage: React.FC = () => {
                   />
                   <span className="radio-label">Company Representative</span>
                 </label>
-
-                <label className="radio-option">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="ADMIN"
-                    checked={formData.role === 'ADMIN'}
-                    onChange={(e) => handleInputChange('role', e.target.value)}
-                  />
-                  <span className="radio-label">Admin</span>
-                </label>
               </div>
               {errors.role && <span className="error-text">{errors.role}</span>}
             </div>

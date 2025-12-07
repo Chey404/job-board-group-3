@@ -19,6 +19,8 @@ import MyProfilePage from './pages/MyProfilePage';
 import MetricsPage from './pages/MetricsPage';
 import SeedDataPage from './pages/SeedDataPage';
 import MockDataTogglePage from './pages/MockDataTogglePage';
+import SetupSuperAdminPage from './pages/SetupSuperAdminPage';
+import CreateUserPage from './pages/CreateUserPage';
 
 import './App.css';
 
@@ -48,6 +50,7 @@ function App() {
             <Routes>
               <Route path="/signin" element={<SignInPage />} />
               <Route path="/create-account" element={<CreateAccountPage />} />
+              <Route path="/setup-superadmin" element={<SetupSuperAdminPage />} />
               <Route 
                 path="/dashboard" 
                 element={
@@ -134,6 +137,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <MyProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/create-user"
+                element={
+                  <ProtectedRoute>
+                    <CreateUserPage />
                   </ProtectedRoute>
                 }
               />
