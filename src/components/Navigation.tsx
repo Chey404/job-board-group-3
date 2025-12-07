@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import './Navigation.css';
@@ -8,8 +8,13 @@ type Role = 'STUDENT' | 'COMPANY_REP' | 'ADMIN' | string;
 type Tab = {
   id: string;
   label: string;
-  route: string;
+  route?: string;
   roles: Role[];
+  dropdown?: {
+    id: string;
+    label: string;
+    route: string;
+  }[];
 };
 
 const Navigation: React.FC = () => {
@@ -17,6 +22,8 @@ const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<string>('job-board');
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Build tabs based on role
   const tabs: Tab[] = useMemo(() => {
@@ -45,12 +52,20 @@ const Navigation: React.FC = () => {
     if (role === 'ADMIN') {
       return [
         { id: 'dawgs-connect', label: 'DawgsConnect', route: '/dashboard', roles: ['ADMIN'] },
-        { id: 'manage-jobs', label: 'Manage Jobs', route: '/admin', roles: ['ADMIN'] },
-        { id: 'users-roles', label: 'Users & Roles', route: '/admin/users', roles: ['ADMIN'] },
-        { id: 'metrics', label: 'Metrics', route: '/admin/metrics', roles: ['ADMIN'] },
         { id: 'create-job', label: 'Create Job Post', route: '/create-job', roles: ['ADMIN'] },
         { id: 'my-jobs', label: 'My Postings', route: '/my-job-postings', roles: ['ADMIN'] },
         { id: 'profile', label: 'My Profile', route: '/profile', roles: ['ADMIN'] },
+        {
+          id: 'manage-dropdown',
+          label: 'Manage',
+          roles: ['ADMIN'],
+          dropdown: [
+            { id: 'manage-jobs', label: 'Manage Jobs', route: '/admin' },
+            { id: 'users-roles', label: 'Users & Roles', route: '/admin/users' },
+            { id: 'create-user', label: 'Create User', route: '/admin/create-user' },
+            { id: 'metrics', label: 'Metrics', route: '/admin/metrics' },
+          ]
+        },
       ];
     }
 
@@ -81,6 +96,10 @@ const Navigation: React.FC = () => {
       setActiveTab('metrics');
       return;
     }
+    if (pathname === '/admin/create-user') {
+      setActiveTab('create-user');
+      return;
+    }
 
     // Common routes
     const map: Record<string, string> = {
@@ -95,9 +114,27 @@ const Navigation: React.FC = () => {
     if (found) setActiveTab(found);
   }, [location.pathname, user?.role]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleTabClick = (tabId: string) => {
     const tab = tabs.find(t => t.id === tabId);
     if (!tab) return;
+
+    // If it's a dropdown, toggle it
+    if (tab.dropdown) {
+      setOpenDropdown(openDropdown === tabId ? null : tabId);
+      return;
+    }
 
     // Placeholder pages (if not implemented yet)
     if (tab.route === '/applications') {
@@ -105,7 +142,15 @@ const Navigation: React.FC = () => {
       return;
     }
 
-    navigate(tab.route);
+    if (tab.route) {
+      navigate(tab.route);
+      setOpenDropdown(null);
+    }
+  };
+
+  const handleDropdownItemClick = (route: string) => {
+    navigate(route);
+    setOpenDropdown(null);
   };
 
   return (
@@ -114,14 +159,38 @@ const Navigation: React.FC = () => {
         <div className="nav-content">
           <div className="nav-tabs">
             {tabs.map(tab => (
-              <button
-                key={tab.id}
-                className={`nav-tab ${activeTab === tab.id ? 'active' : ''}`}
-                onClick={() => handleTabClick(tab.id)}
-                aria-current={activeTab === tab.id ? 'page' : undefined}
-              >
-                {tab.label}
-              </button>
+              <div key={tab.id} className="nav-tab-wrapper" ref={tab.dropdown ? dropdownRef : null}>
+                <button
+                  className={`nav-tab ${
+                    tab.dropdown
+                      ? tab.dropdown.some(item => item.id === activeTab)
+                        ? 'active'
+                        : ''
+                      : activeTab === tab.id
+                      ? 'active'
+                      : ''
+                  }`}
+                  onClick={() => handleTabClick(tab.id)}
+                  aria-current={activeTab === tab.id ? 'page' : undefined}
+                >
+                  {tab.label}
+                  {tab.dropdown && <span className="dropdown-arrow">▼</span>}
+                </button>
+
+                {tab.dropdown && openDropdown === tab.id && (
+                  <div className="dropdown-menu">
+                    {tab.dropdown.map(item => (
+                      <button
+                        key={item.id}
+                        className={`dropdown-item ${activeTab === item.id ? 'active' : ''}`}
+                        onClick={() => handleDropdownItemClick(item.route)}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
 
