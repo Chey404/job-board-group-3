@@ -34,10 +34,10 @@ function RoleLanding() {
 
   if (!auth.isAuthenticated) return <Navigate to="/signin" replace />;
 
-  const role = (auth.user?.role ?? '').toString().toUpperCase();
+  const role = auth.user?.role;
   if (role === 'ADMIN')   return <Navigate to="/admin" replace />;
-  if (role === 'STUDENT') return <Navigate to="/dashboard" replace />; // your student home
-  if (role === 'COMPANY') return <Navigate to="/company" replace />;   // if/when you add it
+  if (role === 'STUDENT') return <Navigate to="/dashboard" replace />;
+  if (role === 'COMPANY_REP' || role === 'UGA_FACULTY') return <Navigate to="/dashboard" replace />;
   return <Navigate to="/dashboard" replace />; // safe fallback
 }
 

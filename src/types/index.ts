@@ -5,7 +5,7 @@ export interface User {
   password?: string; // Optional for security (don't expose in UI)
   firstName: string;
   lastName: string;
-  role: 'STUDENT' | 'COMPANY_REP' | 'ADMIN';
+  role: 'STUDENT' | 'COMPANY_REP' | 'UGA_FACULTY' | 'ADMIN';
   phoneNumber?: string;
   // Student fields
   graduationYear?: number;
@@ -40,6 +40,13 @@ export interface JobPosting {
   approvedBy?: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface Application {
+  studentEmail: string;
+  jobId: string;
+  appliedAt: string;
+  job?: JobPosting; // Populated when fetching with job details
 }
 
 export interface AuthContextType {

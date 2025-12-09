@@ -14,13 +14,13 @@ import './SignInPage.css';
 
 useEffect(() => {
   if (!isAuthenticated) return;
-  const stored = localStorage.getItem('user');
+  const stored = localStorage.getItem('currentUser');
   const currentUser = stored ? JSON.parse(stored) : null;
   const role = currentUser?.role;
 
   if (role === 'ADMIN')       navigate('/admin',   { replace: true });
-  else if (role === 'STUDENT') navigate('/student', { replace: true });
-  else if (role === 'COMPANY') navigate('/company', { replace: true });
+  else if (role === 'STUDENT') navigate('/dashboard', { replace: true });
+  else if (role === 'COMPANY_REP' || role === 'UGA_FACULTY') navigate('/dashboard', { replace: true });
   else                         navigate('/',        { replace: true });
 }, [isAuthenticated, navigate]);
 
@@ -92,6 +92,15 @@ useEffect(() => {
 
         <div className="create-account-link">
           <p>Don't have an account? <a href="/create-account">Create one here</a></p>
+        </div>
+
+        <div className="testing-credentials">
+          <h3>For Testing</h3>
+          <p className="testing-subtitle">Admin Account Login:</p>
+          <div className="credentials-box">
+            <p><strong>Username:</strong> superadmin@account.com</p>
+            <p><strong>Password:</strong> go-bulldogs-!</p>
+          </div>
         </div>
       </div>
     </div>

@@ -12,7 +12,7 @@ const schema = a.schema({
       password: a.string().required(),
       firstName: a.string().required(),
       lastName: a.string().required(),
-      role: a.enum(["STUDENT", "COMPANY_REP", "ADMIN"]),
+      role: a.enum(["STUDENT", "COMPANY_REP", "UGA_FACULTY", "ADMIN"]),
       phoneNumber: a.string(),
       // Student fields
       graduationYear: a.integer(),
