@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { JobPosting } from '../types';
 import { DataService } from '../services/dataService';
-import { GraphQLService } from '../services/graphqlService';
 import { useAuth } from '../hooks/useAuth';
 import Navigation from '../components/Navigation';
 import './JobDetailPage.css';
