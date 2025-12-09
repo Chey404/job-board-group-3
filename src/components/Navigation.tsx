@@ -33,7 +33,7 @@ const Navigation: React.FC = () => {
     if (role === 'STUDENT') {
       return [
         { id: 'job-board', label: 'DawgsConnect', route: '/dashboard', roles: ['STUDENT'] },
-        { id: 'applications', label: 'My Applications', route: '/applications', roles: ['STUDENT'] },
+        { id: 'applications', label: 'My Applications', route: '/my-applications', roles: ['STUDENT'] },
         { id: 'profile', label: 'My Profile', route: '/profile', roles: ['STUDENT'] },
       ];
     }
@@ -106,7 +106,7 @@ const Navigation: React.FC = () => {
       '/dashboard': user?.role === 'ADMIN' ? 'dawgs-connect' : 'job-board',
       '/create-job': 'create-job',
       '/my-job-postings': 'my-jobs',
-      '/applications': 'applications',
+      '/my-applications': 'applications',
       '/profile': 'profile',
     };
 
@@ -133,12 +133,6 @@ const Navigation: React.FC = () => {
     // If it's a dropdown, toggle it
     if (tab.dropdown) {
       setOpenDropdown(openDropdown === tabId ? null : tabId);
-      return;
-    }
-
-    // Placeholder pages (if not implemented yet)
-    if (tab.route === '/applications') {
-      alert(`${tab.label} page coming soon!`);
       return;
     }
 
