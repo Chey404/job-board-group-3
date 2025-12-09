@@ -179,6 +179,56 @@
   font-weight: 500;
 }
 
+/* Testing credentials section */
+.testing-credentials {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background-color: #fffbeb;
+  border: 2px solid #fbbf24;
+  border-radius: 8px;
+}
+
+.testing-credentials h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.testing-credentials .testing-subtitle {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #78350f;
+}
+
+.credentials-box {
+  background-color: #fef3c7;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #fcd34d;
+}
+
+.credentials-box p {
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  color: #78350f;
+  font-family: 'Courier New', monospace;
+}
+
+.credentials-box p:first-child {
+  margin-top: 0;
+}
+
+.credentials-box p:last-child {
+  margin-bottom: 0;
+}
+
+.credentials-box strong {
+  font-weight: 700;
+  color: #92400e;
+}
+
 /* Responsive design */
 @media (max-width: 480px) {
   .signin-container {
@@ -191,5 +241,17 @@
   
   .signin-header h1 {
     font-size: 1.5rem;
+  }
+  
+  .testing-credentials {
+    padding: 1rem;
+  }
+  
+  .credentials-box {
+    padding: 0.625rem;
+  }
+  
+  .credentials-box p {
+    font-size: 0.8125rem;
   }
 }

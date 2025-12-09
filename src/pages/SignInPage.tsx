@@ -93,6 +93,15 @@ useEffect(() => {
         <div className="create-account-link">
           <p>Don't have an account? <a href="/create-account">Create one here</a></p>
         </div>
+
+        <div className="testing-credentials">
+          <h3>For Testing</h3>
+          <p className="testing-subtitle">Admin Account Login:</p>
+          <div className="credentials-box">
+            <p><strong>Username:</strong> superadmin@account.com</p>
+            <p><strong>Password:</strong> go-bulldogs-!</p>
+          </div>
+        </div>
       </div>
     </div>
   );
