@@ -49,6 +49,13 @@ export interface Application {
   job?: JobPosting; // Populated when fetching with job details
 }
 
+export interface SavedJob {
+  studentEmail: string;
+  jobId: string;
+  savedAt: string;
+  job?: JobPosting; // Populated when fetching with job details
+}
+
 export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;

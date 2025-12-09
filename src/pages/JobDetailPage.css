@@ -354,6 +354,8 @@
   display: flex;
   gap: 1rem;
   justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .apply-button,
@@ -433,10 +435,19 @@
   .job-actions {
     flex-direction: column;
     padding: 1.5rem;
+    align-items: stretch;
   }
 
   .apply-button,
   .back-button {
+    width: 100%;
+  }
+
+  .job-actions .save-button-container {
+    width: 100%;
+  }
+
+  .job-actions .save-button {
     width: 100%;
   }
 

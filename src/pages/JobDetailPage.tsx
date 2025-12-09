@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { JobPosting } from '../types';
 import { DataService } from '../services/dataService';
 import Navigation from '../components/Navigation';
+import SaveButton from '../components/SaveButton';
 import './JobDetailPage.css';
 
 const JobDetailPage: React.FC = () => {
@@ -280,6 +281,7 @@ const JobDetailPage: React.FC = () => {
             >
               Apply for this Position
             </button>
+            <SaveButton jobId={job.id} />
             <button 
               onClick={handleBackToJobs}
               className="back-button secondary"

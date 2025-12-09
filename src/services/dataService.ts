@@ -1,4 +1,4 @@
-import { JobPosting, User } from '../types';
+import { JobPosting, User, SavedJob } from '../types';
 import { GraphQLService } from './graphqlService';
 import {
   isMockDataEnabled,
@@ -9,6 +9,11 @@ import {
   deleteMockJob,
   incrementMockJobViewCount,
   searchMockJobs,
+  isJobSavedMock,
+  saveJobMock,
+  unsaveJobMock,
+  getSavedJobsMock,
+  getSavedJobsWithDetailsMock,
 } from './mockDataService';
 
 /**
@@ -147,5 +152,42 @@ export class DataService {
       return getMockJobs();
     }
     return GraphQLService.listAllJobs();
+  }
+
+  // Saved Jobs Operations
+  static async isJobSaved(studentEmail: string, jobId: string): Promise<boolean> {
+    if (isMockDataEnabled()) {
+      return isJobSavedMock(studentEmail, jobId);
+    }
+    return GraphQLService.isJobSaved(studentEmail, jobId);
+  }
+
+  static async saveJob(studentEmail: string, jobId: string): Promise<SavedJob> {
+    if (isMockDataEnabled()) {
+      return saveJobMock(studentEmail, jobId);
+    }
+    return GraphQLService.saveJob(studentEmail, jobId);
+  }
+
+  static async unsaveJob(studentEmail: string, jobId: string): Promise<void> {
+    if (isMockDataEnabled()) {
+      unsaveJobMock(studentEmail, jobId);
+      return;
+    }
+    return GraphQLService.unsaveJob(studentEmail, jobId);
+  }
+
+  static async getSavedJobs(studentEmail: string): Promise<SavedJob[]> {
+    if (isMockDataEnabled()) {
+      return getSavedJobsMock(studentEmail);
+    }
+    return GraphQLService.getSavedJobs(studentEmail);
+  }
+
+  static async getSavedJobsWithDetails(studentEmail: string): Promise<JobPosting[]> {
+    if (isMockDataEnabled()) {
+      return getSavedJobsWithDetailsMock(studentEmail);
+    }
+    return GraphQLService.getSavedJobsWithDetails(studentEmail);
   }
 }
