@@ -1,8 +1,9 @@
-import { JobPosting } from '../types';
+import { JobPosting, SavedJob } from '../types';
 
 // Mock job postings data stored in localStorage
 const MOCK_JOBS_KEY = 'mock_job_postings';
 const MOCK_USERS_KEY = 'mock_users';
+const MOCK_SAVED_JOBS_KEY = 'mock_saved_jobs';
 const USE_MOCK_DATA_KEY = 'use_mock_data';
 
 // Initial mock job data
@@ -419,4 +420,82 @@ export function searchMockJobs(searchTerm: string, jobType?: string, industry?: 
   }
 
   return jobs;
+}
+
+// Saved Jobs Mock Operations
+
+// Get all mock saved jobs
+function getMockSavedJobs(): SavedJob[] {
+  const data = localStorage.getItem(MOCK_SAVED_JOBS_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+// Set mock saved jobs
+function setMockSavedJobs(savedJobs: SavedJob[]) {
+  localStorage.setItem(MOCK_SAVED_JOBS_KEY, JSON.stringify(savedJobs));
+}
+
+// Check if a job is saved by a student
+export function isJobSavedMock(studentEmail: string, jobId: string): boolean {
+  const savedJobs = getMockSavedJobs();
+  return savedJobs.some(
+    (savedJob) => savedJob.studentEmail === studentEmail && savedJob.jobId === jobId
+  );
+}
+
+// Save a job for a student
+export function saveJobMock(studentEmail: string, jobId: string): SavedJob {
+  const savedJobs = getMockSavedJobs();
+  
+  // Check if already saved (prevent duplicates)
+  const existingSave = savedJobs.find(
+    (savedJob) => savedJob.studentEmail === studentEmail && savedJob.jobId === jobId
+  );
+  
+  if (existingSave) {
+    return existingSave;
+  }
+  
+  const newSavedJob: SavedJob = {
+    studentEmail,
+    jobId,
+    savedAt: new Date().toISOString(),
+  };
+  
+  savedJobs.push(newSavedJob);
+  setMockSavedJobs(savedJobs);
+  return newSavedJob;
+}
+
+// Remove a saved job
+export function unsaveJobMock(studentEmail: string, jobId: string): void {
+  const savedJobs = getMockSavedJobs();
+  const filtered = savedJobs.filter(
+    (savedJob) => !(savedJob.studentEmail === studentEmail && savedJob.jobId === jobId)
+  );
+  setMockSavedJobs(filtered);
+}
+
+// Get all saved jobs for a student
+export function getSavedJobsMock(studentEmail: string): SavedJob[] {
+  const savedJobs = getMockSavedJobs();
+  return savedJobs.filter((savedJob) => savedJob.studentEmail === studentEmail);
+}
+
+// Get saved jobs with full job details
+export function getSavedJobsWithDetailsMock(studentEmail: string): JobPosting[] {
+  const savedJobs = getSavedJobsMock(studentEmail);
+  const allJobs = getMockJobs();
+  
+  // Map saved jobs to full job postings
+  const jobsWithDetails: JobPosting[] = [];
+  
+  for (const savedJob of savedJobs) {
+    const job = allJobs.find((j) => j.id === savedJob.jobId);
+    if (job) {
+      jobsWithDetails.push(job);
+    }
+  }
+  
+  return jobsWithDetails;
 }

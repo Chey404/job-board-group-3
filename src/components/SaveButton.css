@@ -1,0 +1,204 @@
+.save-button-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.save-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  min-height: 44px;
+  min-width: 44px;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+}
+
+/* Hover state */
+.save-button:hover:not(:disabled) {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+  color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Active/pressed state */
+.save-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Focus state for accessibility */
+.save-button:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Focus visible for keyboard navigation */
+.save-button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Saved state */
+.save-button.saved {
+  border-color: #3b82f6;
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.save-button.saved:hover:not(:disabled) {
+  border-color: #2563eb;
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.save-button.saved .save-icon {
+  animation: saveSuccess 0.3s ease-in-out;
+}
+
+/* Loading state */
+.save-button.loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.save-button.loading .save-icon {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Disabled state */
+.save-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Icon styling */
+.save-icon {
+  flex-shrink: 0;
+  transition: transform 0.2s ease-in-out;
+}
+
+.save-button:hover:not(:disabled) .save-icon {
+  transform: scale(1.1);
+}
+
+/* Button text */
+.save-button-text {
+  white-space: nowrap;
+}
+
+/* Error message */
+.save-error {
+  padding: 0.5rem 0.75rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.375rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+  animation: slideIn 0.2s ease-out;
+}
+
+/* Animations */
+@keyframes saveSuccess {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile optimization - ensure touch targets are adequate */
+@media (max-width: 768px) {
+  .save-button {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 0.75rem 1.25rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .save-button {
+    border-width: 3px;
+  }
+  
+  .save-button:focus {
+    outline-width: 3px;
+  }
+}
+
+/* Reduced motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .save-button,
+  .save-icon,
+  .save-error {
+    animation: none;
+    transition: none;
+  }
+  
+  .save-button:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Dark mode support (optional, if app supports dark mode) */
+@media (prefers-color-scheme: dark) {
+  .save-button {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #e5e7eb;
+  }
+  
+  .save-button:hover:not(:disabled) {
+    background-color: #1e3a8a;
+    border-color: #3b82f6;
+    color: #ffffff;
+  }
+  
+  .save-button.saved {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+  }
+  
+  .save-error {
+    background-color: #7f1d1d;
+    border-color: #991b1b;
+    color: #fecaca;
+  }
+}

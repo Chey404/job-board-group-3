@@ -1,6 +1,6 @@
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "../../amplify/data/resource";
-import { JobPosting, User } from "../types";
+import { JobPosting, User, SavedJob } from "../types";
 
 const client = generateClient<Schema>();
 
@@ -24,6 +24,16 @@ function convertGraphQLJobToJobPosting(job: any): JobPosting {
         approvedBy: job.approvedBy || undefined,
         createdAt: job.createdAt || '',
         updatedAt: job.updatedAt || '',
+    };
+}
+
+// Helper function to safely convert GraphQL saved job to our SavedJob type
+function convertGraphQLSavedJobToSavedJob(savedJob: any): SavedJob {
+    return {
+        studentEmail: savedJob.studentEmail || '',
+        jobId: savedJob.jobId || '',
+        savedAt: savedJob.savedAt || '',
+        job: savedJob.job ? convertGraphQLJobToJobPosting(savedJob.job) : undefined,
     };
 }
 
@@ -380,6 +390,113 @@ export class GraphQLService {
       return (users ?? []).map(convertGraphQLUserToUser);
     } catch (error) {
       console.error("Error fetching all users:", error);
+      throw error;
+    }
+  }
+
+  // Saved Jobs Operations
+  static async isJobSaved(studentEmail: string, jobId: string): Promise<boolean> {
+    try {
+      const { data: savedJob, errors } = await client.models.SavedJob.get({
+        studentEmail,
+        jobId,
+      });
+
+      if (errors) {
+        console.error("GraphQL errors:", errors);
+        throw new Error("Failed to check if job is saved");
+      }
+
+      return savedJob !== null && savedJob !== undefined;
+    } catch (error) {
+      console.error("Error checking if job is saved:", error);
+      throw error;
+    }
+  }
+
+  static async saveJob(studentEmail: string, jobId: string): Promise<SavedJob> {
+    try {
+      const savedAt = new Date().toISOString();
+      
+      const { data: savedJob, errors } = await client.models.SavedJob.create({
+        studentEmail,
+        jobId,
+        savedAt,
+      });
+
+      if (errors) {
+        console.error("GraphQL errors:", errors);
+        throw new Error("Failed to save job");
+      }
+
+      if (!savedJob) {
+        throw new Error("Failed to create saved job record");
+      }
+
+      return convertGraphQLSavedJobToSavedJob(savedJob);
+    } catch (error) {
+      console.error("Error saving job:", error);
+      throw error;
+    }
+  }
+
+  static async unsaveJob(studentEmail: string, jobId: string): Promise<void> {
+    try {
+      const { errors } = await client.models.SavedJob.delete({
+        studentEmail,
+        jobId,
+      });
+
+      if (errors) {
+        console.error("GraphQL errors:", errors);
+        throw new Error("Failed to unsave job");
+      }
+    } catch (error) {
+      console.error("Error unsaving job:", error);
+      throw error;
+    }
+  }
+
+  static async getSavedJobs(studentEmail: string): Promise<SavedJob[]> {
+    try {
+      const { data: savedJobs, errors } = await client.models.SavedJob.list({
+        filter: { studentEmail: { eq: studentEmail } },
+      });
+
+      if (errors) {
+        console.error("GraphQL errors:", errors);
+        throw new Error("Failed to fetch saved jobs");
+      }
+
+      return (savedJobs ?? []).map(convertGraphQLSavedJobToSavedJob);
+    } catch (error) {
+      console.error("Error fetching saved jobs:", error);
+      throw error;
+    }
+  }
+
+  static async getSavedJobsWithDetails(studentEmail: string): Promise<JobPosting[]> {
+    try {
+      // First get all saved jobs for the student
+      const savedJobs = await this.getSavedJobs(studentEmail);
+
+      // Then fetch the full job details for each saved job
+      const jobPromises = savedJobs.map(async (savedJob) => {
+        try {
+          const job = await this.getJobById(savedJob.jobId);
+          return job;
+        } catch (error) {
+          console.error(`Error fetching job ${savedJob.jobId}:`, error);
+          return null;
+        }
+      });
+
+      const jobs = await Promise.all(jobPromises);
+
+      // Filter out any null values (jobs that failed to fetch or were deleted)
+      return jobs.filter((job): job is JobPosting => job !== null);
+    } catch (error) {
+      console.error("Error fetching saved jobs with details:", error);
       throw error;
     }
   }
