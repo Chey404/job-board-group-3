@@ -14,8 +14,6 @@ const JobDetailPage: React.FC = () => {
   const [job, setJob] = useState<JobPosting | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hasApplied, setHasApplied] = useState(false);
-  const [applicationDate, setApplicationDate] = useState<string | null>(null);
 
   useEffect(() => {
     const loadJob = async () => {
@@ -39,26 +37,6 @@ const JobDetailPage: React.FC = () => {
           setError('Job not found');
         } else {
           setJob(jobData);
-          
-          // Check if student has already applied
-          if (user && user.role === 'STUDENT' && user.email) {
-            try {
-              const applied = await GraphQLService.hasStudentApplied(user.email, id);
-              setHasApplied(applied);
-              
-              // If already applied, fetch the application date
-              if (applied) {
-                const applications = await GraphQLService.getStudentApplications(user.email);
-                const thisApplication = applications.find(app => app.jobId === id);
-                if (thisApplication) {
-                  setApplicationDate(thisApplication.appliedAt);
-                }
-              }
-            } catch (err) {
-              console.error('Error checking application status:', err);
-              // Don't block page load if application check fails
-            }
-          }
         }
       } catch (err) {
         console.error('Failed to load job:', err);
@@ -124,24 +102,7 @@ const JobDetailPage: React.FC = () => {
     if (!job || !user?.email) return;
 
     try {
-      // Only create application record for students
-      if (user.role === 'STUDENT') {
-        try {
-          await GraphQLService.createApplication(user.email, job.id);
-          setHasApplied(true);
-          setApplicationDate(new Date().toISOString());
-        } catch (appError: any) {
-          // Handle duplicate application error
-          if (appError.message?.includes('already applied')) {
-            alert('You have already applied to this position');
-            setHasApplied(true);
-            return;
-          }
-          throw appError;
-        }
-      }
-
-      // Increment application count for all users
+      // Increment application count
       await DataService.updateJob(job.id, {
         applicationCount: job.applicationCount + 1
       });
