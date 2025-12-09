@@ -366,4 +366,21 @@ export class GraphQLService {
       throw error;
     }
   }
+
+  // List all users (for admin)
+  static async listAllUsers(): Promise<User[]> {
+    try {
+      const { data: users, errors } = await client.models.User.list({});
+      
+      if (errors) {
+        console.error("GraphQL errors:", errors);
+        throw new Error("Failed to fetch all users");
+      }
+      
+      return (users ?? []).map(convertGraphQLUserToUser);
+    } catch (error) {
+      console.error("Error fetching all users:", error);
+      throw error;
+    }
+  }
 }

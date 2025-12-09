@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import Navigation from "../components/Navigation";
 import "./UsersRolesPage.css";
+import { GraphQLService } from "../services/graphqlService";
+import { User } from "../types";
 
 import {
   listUsersAdmin,
@@ -18,16 +20,21 @@ export default function UsersRolesPage() {
     if (!user || user.role !== "ADMIN") navigate("/signin");
   }, [user, navigate]);
 
-  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  
+  // Filtering state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
 
   const loadUsers = async () => {
     setLoading(true);
     setError(null);
     try {
-      const userList = await listUsersAdmin();
+      const userList = await GraphQLService.listAllUsers();
       setUsers(userList);
     } catch (err) {
       setError("Failed to load users. Please try again.");
@@ -41,18 +48,27 @@ export default function UsersRolesPage() {
     loadUsers();
   }, []);
 
-  const handleRoleChange = async (userId: string, newRole: AdminUser["role"]) => {
-    setFeedback(null);
-    try {
-      await updateUserRoleAdmin(userId, newRole);
-      setFeedback({ type: "success", message: "Role updated successfully" });
-      // Refresh user list
-      await loadUsers();
-    } catch (err) {
-      setFeedback({ type: "error", message: "Failed to update role. Please try again." });
-      console.error("Error updating role:", err);
+  // Filtering logic
+  useEffect(() => {
+    let filtered = users;
+    
+    // Apply role filter
+    if (roleFilter !== 'all') {
+      filtered = filtered.filter(u => u.role === roleFilter);
     }
-  };
+    
+    // Apply search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(u =>
+        u.email.toLowerCase().includes(searchLower) ||
+        u.firstName.toLowerCase().includes(searchLower) ||
+        u.lastName.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    setFilteredUsers(filtered);
+  }, [users, searchTerm, roleFilter]);
 
   return (
     <>
@@ -60,12 +76,6 @@ export default function UsersRolesPage() {
 
       <div className="dashboard-container">
         <h1 className="page-title">Users & Roles</h1>
-
-        {feedback && (
-          <div className={`feedback-message ${feedback.type}`}>
-            {feedback.message}
-          </div>
-        )}
 
         <section className="section">
           {loading ? (
@@ -88,33 +98,55 @@ export default function UsersRolesPage() {
             </div>
           ) : (
             <div className="table-card">
+              <div className="filters-section">
+                <input
+                  type="text"
+                  placeholder="Search by name or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+                
+                <select
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                  className="role-filter"
+                >
+                  <option value="all">All Roles</option>
+                  <option value="STUDENT">Student</option>
+                  <option value="COMPANY_REP">Company Rep</option>
+                  <option value="UGA_FACULTY">UGA Faculty</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              </div>
+
               <div className="table-responsive">
                 <table className="table">
                   <thead>
                     <tr>
-                      <th>Name</th>
                       <th>Email</th>
+                      <th>First Name</th>
+                      <th>Last Name</th>
                       <th>Role</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map((u) => (
-                      <tr key={u.id}>
-                        <td>{u.name || "—"}</td>
-                        <td>{u.email}</td>
-                        <td>
-                          <select
-                            value={u.role}
-                            onChange={(e) => handleRoleChange(u.id, e.target.value as AdminUser["role"])}
-                            className="role-selector"
-                          >
-                            <option value="STUDENT">STUDENT</option>
-                            <option value="COMPANY">COMPANY</option>
-                            <option value="ADMIN">ADMIN</option>
-                          </select>
+                    {filteredUsers.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#718096' }}>
+                          No users found matching your filters
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      filteredUsers.map((u) => (
+                        <tr key={u.email}>
+                          <td>{u.email}</td>
+                          <td>{u.firstName}</td>
+                          <td>{u.lastName}</td>
+                          <td>{u.role}</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
