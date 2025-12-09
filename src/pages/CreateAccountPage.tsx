@@ -20,6 +20,9 @@ interface FormData {
   companyName: string;
   jobTitle: string;
   industry: string;
+  // UGA Faculty fields
+  position: string;
+  department: string;
 }
 
 interface FormErrors {
@@ -34,6 +37,8 @@ interface FormErrors {
   companyName?: string;
   jobTitle?: string;
   industry?: string;
+  position?: string;
+  department?: string;
   general?: string;
 }
 
@@ -50,7 +55,9 @@ const CreateAccountPage: React.FC = () => {
     graduationYear: '',
     companyName: '',
     jobTitle: '',
-    industry: ''
+    industry: '',
+    position: '',
+    department: ''
   });
 
 
@@ -72,6 +79,19 @@ const CreateAccountPage: React.FC = () => {
     { value: 'Non-profit', label: 'Non-profit' },
     { value: 'Government', label: 'Government' },
     { value: 'Other', label: 'Other' }
+  ];
+
+  const departments = [
+    { value: '', label: 'Select Department' },
+    { value: 'Accounting', label: 'Accounting' },
+    { value: 'Economics', label: 'Economics' },
+    { value: 'Finance', label: 'Finance' },
+    { value: 'Management Information Systems', label: 'Management Information Systems' },
+    { value: 'Legal Studies', label: 'Legal Studies' },
+    { value: 'Management', label: 'Management' },
+    { value: 'Marketing', label: 'Marketing' },
+    { value: 'Real Estate', label: 'Real Estate' },
+    { value: 'Risk Management', label: 'Risk Management' }
   ];
 
   const currentYear = new Date().getFullYear();
@@ -135,6 +155,14 @@ const CreateAccountPage: React.FC = () => {
         if (formData.role === 'COMPANY_REP' && !value) return 'Industry is required';
         return '';
 
+      case 'position':
+        if (formData.role === 'UGA_FACULTY' && !value.trim()) return 'Position is required';
+        return '';
+
+      case 'department':
+        if (formData.role === 'UGA_FACULTY' && !value) return 'Department is required';
+        return '';
+
       default:
         return '';
     }
@@ -167,6 +195,9 @@ const CreateAccountPage: React.FC = () => {
           break;
         case 'COMPANY_REP':
           requiredFields = [...baseFields, 'companyName', 'jobTitle', 'industry'];
+          break;
+        case 'UGA_FACULTY':
+          requiredFields = [...baseFields, 'position', 'department'];
           break;
         default:
           requiredFields = baseFields;
@@ -232,7 +263,7 @@ const CreateAccountPage: React.FC = () => {
         password: formData.password, // Plain text password
         firstName: formData.firstName,
         lastName: formData.lastName,
-        role: formData.role as 'STUDENT' | 'COMPANY_REP' | 'ADMIN',
+        role: formData.role as 'STUDENT' | 'COMPANY_REP' | 'UGA_FACULTY' | 'ADMIN',
       };
 
       // Add phone number only if provided
@@ -247,6 +278,9 @@ const CreateAccountPage: React.FC = () => {
         userData.companyName = formData.companyName;
         userData.jobTitle = formData.jobTitle;
         userData.industry = formData.industry;
+      } else if (formData.role === 'UGA_FACULTY') {
+        userData.jobTitle = formData.position;
+        userData.industry = formData.department;
       }
 
       await client.models.User.create(userData);
@@ -386,8 +420,6 @@ const CreateAccountPage: React.FC = () => {
                   <span className="radio-label">MIS Student</span>
                 </label>
 
-
-
                 <label className="radio-option">
                   <input
                     type="radio"
@@ -397,6 +429,17 @@ const CreateAccountPage: React.FC = () => {
                     onChange={(e) => handleInputChange('role', e.target.value)}
                   />
                   <span className="radio-label">Company Representative</span>
+                </label>
+
+                <label className="radio-option">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="UGA_FACULTY"
+                    checked={formData.role === 'UGA_FACULTY'}
+                    onChange={(e) => handleInputChange('role', e.target.value)}
+                  />
+                  <span className="radio-label">UGA Faculty</span>
                 </label>
               </div>
               {errors.role && <span className="error-text">{errors.role}</span>}
@@ -481,8 +524,45 @@ const CreateAccountPage: React.FC = () => {
                   </select>
                   {errors.industry && <span className="error-text">{errors.industry}</span>}
                 </div>
+              </div>
+            </div>
+          )}
 
+          {/* UGA Faculty-specific fields */}
+          {formData.role === 'UGA_FACULTY' && (
+            <div className="form-section">
+              <h2>Faculty Information</h2>
 
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="position">Position *</label>
+                  <input
+                    type="text"
+                    id="position"
+                    value={formData.position}
+                    onChange={(e) => handleInputChange('position', e.target.value)}
+                    className={errors.position ? 'error' : ''}
+                    placeholder="e.g., Assistant Professor"
+                  />
+                  {errors.position && <span className="error-text">{errors.position}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="department">Department *</label>
+                  <select
+                    id="department"
+                    value={formData.department}
+                    onChange={(e) => handleInputChange('department', e.target.value)}
+                    className={errors.department ? 'error' : ''}
+                  >
+                    {departments.map(dept => (
+                      <option key={dept.value} value={dept.value}>
+                        {dept.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.department && <span className="error-text">{errors.department}</span>}
+                </div>
               </div>
             </div>
           )}

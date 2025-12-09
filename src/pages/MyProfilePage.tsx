@@ -35,8 +35,8 @@ const MyProfilePage: React.FC = () => {
         industry: user.industry || '',
       });
       
-      // Load job postings count for company reps
-      if (user.role === 'COMPANY_REP') {
+      // Load job postings count for company reps and faculty
+      if (user.role === 'COMPANY_REP' || user.role === 'UGA_FACULTY') {
         loadJobPostingsCount();
       }
     }
@@ -85,6 +85,9 @@ const MyProfilePage: React.FC = () => {
         updates.companyName = formData.companyName;
         updates.jobTitle = formData.jobTitle;
         updates.industry = formData.industry;
+      } else if (user.role === 'UGA_FACULTY') {
+        updates.jobTitle = formData.jobTitle; // Position stored in jobTitle
+        updates.industry = formData.industry; // Department stored in industry
       }
 
       await DataService.updateUserProfile(user.email, updates);
@@ -294,6 +297,38 @@ const MyProfilePage: React.FC = () => {
                   </div>
                 )}
 
+                {user.role === 'UGA_FACULTY' && (
+                  <div className="form-section">
+                    <h2>Faculty Information</h2>
+                    
+                    <div className="form-group">
+                      <label htmlFor="jobTitle">Position *</label>
+                      <input
+                        type="text"
+                        id="jobTitle"
+                        name="jobTitle"
+                        value={formData.jobTitle}
+                        onChange={handleInputChange}
+                        required
+                        disabled={loading}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="industry">Department *</label>
+                      <input
+                        type="text"
+                        id="industry"
+                        name="industry"
+                        value={formData.industry}
+                        onChange={handleInputChange}
+                        required
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <div className="form-actions">
                   <button
                     type="button"
@@ -338,6 +373,7 @@ const MyProfilePage: React.FC = () => {
                       <p className="role-badge">
                         {user.role === 'STUDENT' && 'Student'}
                         {user.role === 'COMPANY_REP' && 'Company Representative'}
+                        {user.role === 'UGA_FACULTY' && 'UGA Faculty'}
                         {user.role === 'ADMIN' && 'Administrator'}
                       </p>
                     </div>
@@ -374,6 +410,29 @@ const MyProfilePage: React.FC = () => {
 
                       <div className="info-item">
                         <label>Industry</label>
+                        <p>{user.industry || 'Not provided'}</p>
+                      </div>
+
+                      <div className="info-item">
+                        <label>Posted Jobs</label>
+                        <p className="stat-value">{jobPostingsCount}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {user.role === 'UGA_FACULTY' && (
+                  <div className="profile-section">
+                    <h2>Faculty Information</h2>
+                    
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <label>Position</label>
+                        <p>{user.jobTitle || 'Not provided'}</p>
+                      </div>
+
+                      <div className="info-item">
+                        <label>Department</label>
                         <p>{user.industry || 'Not provided'}</p>
                       </div>
 
