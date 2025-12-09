@@ -9,6 +9,7 @@ import CreateAccountPage from './pages/CreateAccountPage';
 import StudentDashboard from './pages/StudentDashboard';
 import CreateJobPage from './pages/CreateJobPage';
 import MyJobPostingsPage from './pages/MyJobPostingsPage';
+import MyApplicationsPage from './pages/MyApplicationsPage';
 import JobDetailPage from './pages/JobDetailPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -72,6 +73,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <MyJobPostingsPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/my-applications" 
+                element={
+                  <ProtectedRoute>
+                    <MyApplicationsPage />
                   </ProtectedRoute>
                 } 
               />

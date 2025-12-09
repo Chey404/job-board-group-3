@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { JobPosting } from '../types';
 import { DataService } from '../services/dataService';
+import { useAuth } from '../hooks/useAuth';
 import Navigation from '../components/Navigation';
 import './JobDetailPage.css';
 
 const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [job, setJob] = useState<JobPosting | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +46,7 @@ const JobDetailPage: React.FC = () => {
     };
 
     loadJob();
-  }, [id]);
+  }, [id, user]);
 
   const formatDeadline = (deadline: string) => {
     const date = new Date(deadline);
@@ -96,7 +98,7 @@ const JobDetailPage: React.FC = () => {
   };
 
   const handleApply = async () => {
-    if (!job) return;
+    if (!job || !user?.email) return;
 
     try {
       // Increment application count
@@ -107,7 +109,7 @@ const JobDetailPage: React.FC = () => {
       // Update local state
       setJob(prev => prev ? { ...prev, applicationCount: prev.applicationCount + 1 } : null);
 
-      // Handle contact method
+      // Handle contact method (email or careers page)
       if (job.contactMethod.type === 'EMAIL') {
         const subject = encodeURIComponent(`Application for ${job.title}`);
         const body = encodeURIComponent(

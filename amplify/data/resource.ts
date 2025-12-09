@@ -21,6 +21,7 @@ const schema = a.schema({
       jobTitle: a.string(),
       industry: a.string(),
       jobPostings: a.hasMany("JobPosting", "postedBy"),
+      applications: a.hasMany("Application", "studentEmail"),
       createdAt: a.datetime(),
       updatedAt: a.datetime(),
     })
@@ -49,12 +50,30 @@ const schema = a.schema({
       adminComments: a.string(),
       approvedBy: a.email(),
       user: a.belongsTo("User", "postedBy"),
+      applications: a.hasMany("Application", "jobId"),
     })
     .secondaryIndexes((index: any) => [
       index("postedBy").name("byPostedBy"),
       index("status").name("byStatus"),
       index("jobType").name("byJobType"),
       index("industry").name("byIndustry"),
+    ])
+    .authorization((allow: any) => [
+      allow.publicApiKey(),
+    ]),
+
+  Application: a
+    .model({
+      studentEmail: a.email().required(),
+      jobId: a.id().required(),
+      appliedAt: a.datetime().required(),
+      student: a.belongsTo("User", "studentEmail"),
+      job: a.belongsTo("JobPosting", "jobId"),
+    })
+    .identifier(["studentEmail", "jobId"])
+    .secondaryIndexes((index: any) => [
+      index("studentEmail").name("byStudentEmail"),
+      index("jobId").name("byJobId"),
     ])
     .authorization((allow: any) => [
       allow.publicApiKey(),

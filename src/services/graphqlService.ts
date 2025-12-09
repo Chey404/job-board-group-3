@@ -1,6 +1,6 @@
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "../../amplify/data/resource";
-import { JobPosting, User } from "../types";
+import { JobPosting, User, Application } from "../types";
 
 const client = generateClient<Schema>();
 
@@ -33,7 +33,7 @@ function convertGraphQLUserToUser(user: any): User {
         email: user.email,
         firstName: user.firstName || '',
         lastName: user.lastName || '',
-        role: (user.role as 'STUDENT' | 'COMPANY_REP' | 'ADMIN') || 'STUDENT',
+        role: (user.role as 'STUDENT' | 'COMPANY_REP' | 'UGA_FACULTY' | 'ADMIN') || 'STUDENT',
         phoneNumber: user.phoneNumber || undefined,
         graduationYear: user.graduationYear || undefined,
         companyName: user.companyName || undefined,
@@ -41,6 +41,16 @@ function convertGraphQLUserToUser(user: any): User {
         industry: user.industry || undefined,
         createdAt: user.createdAt || undefined,
         updatedAt: user.updatedAt || undefined,
+    };
+}
+
+// Helper function to safely convert GraphQL Application to our Application type
+function convertGraphQLApplicationToApplication(application: any): Application {
+    return {
+        studentEmail: application.studentEmail || '',
+        jobId: application.jobId || '',
+        appliedAt: application.appliedAt || '',
+        job: application.job ? convertGraphQLJobToJobPosting(application.job) : undefined,
     };
 }
 
@@ -366,4 +376,140 @@ export class GraphQLService {
       throw error;
     }
   }
+
+    // Application Operations
+    static async createApplication(studentEmail: string, jobId: string): Promise<Application> {
+        try {
+            const { data: application, errors } = await client.models.Application.create({
+                studentEmail,
+                jobId,
+                appliedAt: new Date().toISOString(),
+            });
+
+            if (errors) {
+                console.error("GraphQL errors:", errors);
+                // Check if it's a duplicate application error
+                const isDuplicate = errors.some((error: any) => 
+                    error.message?.includes('duplicate') || 
+                    error.message?.includes('already exists') ||
+                    error.errorType === 'DynamoDB:ConditionalCheckFailedException'
+                );
+                
+                if (isDuplicate) {
+                    throw new Error("You have already applied to this position");
+                }
+                
+                throw new Error("Failed to create application");
+            }
+
+            return convertGraphQLApplicationToApplication(application);
+        } catch (error) {
+            console.error("Error creating application:", error);
+            throw error;
+        }
+    }
+
+    static async getStudentApplications(studentEmail: string): Promise<Application[]> {
+        try {
+            const { data: applications, errors } = await client.models.Application.list({
+                filter: { studentEmail: { eq: studentEmail } }
+            });
+
+            if (errors) {
+                console.error("GraphQL errors:", errors);
+                throw new Error("Failed to fetch student applications");
+            }
+
+            // Convert and sort by appliedAt date descending (most recent first)
+            const convertedApplications = applications.map(convertGraphQLApplicationToApplication);
+            return convertedApplications.sort((a, b) => 
+                new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime()
+            );
+        } catch (error) {
+            console.error("Error fetching student applications:", error);
+            throw error;
+        }
+    }
+
+    static async hasStudentApplied(studentEmail: string, jobId: string): Promise<boolean> {
+        try {
+            const { data: application, errors } = await client.models.Application.get({
+                studentEmail,
+                jobId,
+            });
+
+            if (errors) {
+                console.error("GraphQL errors:", errors);
+                return false;
+            }
+
+            return application !== null && application !== undefined;
+        } catch (error) {
+            console.error("Error checking if student applied:", error);
+            return false;
+        }
+    }
+
+    static async getApplicationsWithJobDetails(studentEmail: string): Promise<Application[]> {
+        try {
+            // First, get all applications for the student
+            const { data: applications, errors } = await client.models.Application.list({
+                filter: { studentEmail: { eq: studentEmail } }
+            });
+
+            if (errors) {
+                console.error("GraphQL errors:", errors);
+                throw new Error("Failed to fetch applications with job details");
+            }
+
+            // Fetch job details for each application
+            const applicationsWithJobs = await Promise.all(
+                applications.map(async (app) => {
+                    try {
+                        const { data: job } = await client.models.JobPosting.get({ id: app.jobId });
+                        
+                        return {
+                            studentEmail: app.studentEmail,
+                            jobId: app.jobId,
+                            appliedAt: app.appliedAt,
+                            job: job ? convertGraphQLJobToJobPosting(job) : undefined,
+                        };
+                    } catch (error) {
+                        console.error(`Error fetching job ${app.jobId}:`, error);
+                        // Return application without job details if job fetch fails (e.g., job deleted)
+                        return {
+                            studentEmail: app.studentEmail,
+                            jobId: app.jobId,
+                            appliedAt: app.appliedAt,
+                            job: undefined,
+                        };
+                    }
+                })
+            );
+
+            // Sort by appliedAt date descending (most recent first)
+            return applicationsWithJobs.sort((a, b) => 
+                new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime()
+            );
+        } catch (error) {
+            console.error("Error fetching applications with job details:", error);
+            throw error;
+        }
+    }
+
+    static async listAllUsers(): Promise<User[]> {
+        try {
+            const { data: users, errors } = await client.models.User.list({});
+
+            if (errors) {
+                console.error("GraphQL errors:", errors);
+                throw new Error("Failed to fetch all users");
+            }
+
+            return users.map(convertGraphQLUserToUser);
+        } catch (error) {
+            console.error("Error fetching all users:", error);
+            throw error;
+        }
+    }
 }
