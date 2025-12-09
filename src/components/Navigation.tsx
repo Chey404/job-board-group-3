@@ -38,13 +38,13 @@ const Navigation: React.FC = () => {
       ];
     }
 
-    // COMPANY (future friendly)
-    if (role === 'COMPANY_REP') {
+    // COMPANY_REP and UGA_FACULTY (same permissions)
+    if (role === 'COMPANY_REP' || role === 'UGA_FACULTY') {
       return [
-        { id: 'job-board', label: 'DawgsConnect', route: '/dashboard', roles: ['COMPANY_REP'] },
-        { id: 'my-jobs', label: 'My Postings', route: '/my-job-postings', roles: ['COMPANY_REP'] },
-        { id: 'create-job', label: 'Create Job Post', route: '/create-job', roles: ['COMPANY_REP'] },
-        { id: 'profile', label: 'Profile', route: '/profile', roles: ['COMPANY_REP'] },
+        { id: 'job-board', label: 'DawgsConnect', route: '/dashboard', roles: ['COMPANY_REP', 'UGA_FACULTY'] },
+        { id: 'my-jobs', label: 'My Postings', route: '/my-job-postings', roles: ['COMPANY_REP', 'UGA_FACULTY'] },
+        { id: 'create-job', label: 'Create Job Post', route: '/create-job', roles: ['COMPANY_REP', 'UGA_FACULTY'] },
+        { id: 'profile', label: 'Profile', route: '/profile', roles: ['COMPANY_REP', 'UGA_FACULTY'] },
       ];
     }
 
@@ -202,7 +202,8 @@ const Navigation: React.FC = () => {
               <span className="user-role">
                 {user?.role === 'STUDENT' ? 'Student' :
                     user?.role === 'COMPANY_REP' ? 'Company Rep' :
-                      user?.role === 'ADMIN' ? 'Admin' : user?.role}
+                      user?.role === 'UGA_FACULTY' ? 'UGA Faculty' :
+                        user?.role === 'ADMIN' ? 'Admin' : user?.role}
               </span>
             </div>
             <button onClick={() => logout()} className="logout-button">

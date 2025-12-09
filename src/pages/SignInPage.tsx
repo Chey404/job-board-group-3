@@ -14,13 +14,13 @@ import './SignInPage.css';
 
 useEffect(() => {
   if (!isAuthenticated) return;
-  const stored = localStorage.getItem('user');
+  const stored = localStorage.getItem('currentUser');
   const currentUser = stored ? JSON.parse(stored) : null;
   const role = currentUser?.role;
 
   if (role === 'ADMIN')       navigate('/admin',   { replace: true });
-  else if (role === 'STUDENT') navigate('/student', { replace: true });
-  else if (role === 'COMPANY') navigate('/company', { replace: true });
+  else if (role === 'STUDENT') navigate('/dashboard', { replace: true });
+  else if (role === 'COMPANY_REP' || role === 'UGA_FACULTY') navigate('/dashboard', { replace: true });
   else                         navigate('/',        { replace: true });
 }, [isAuthenticated, navigate]);
 
