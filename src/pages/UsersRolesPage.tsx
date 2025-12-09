@@ -6,12 +6,6 @@ import "./UsersRolesPage.css";
 import { GraphQLService } from "../services/graphqlService";
 import { User } from "../types";
 
-import {
-  listUsersAdmin,
-  updateUserRoleAdmin,
-  type AdminUser,
-} from "../services/adminService";
-
 export default function UsersRolesPage() {
   const { user } = useContext(AuthContext)!;
   const navigate = useNavigate();
@@ -23,7 +17,6 @@ export default function UsersRolesPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   
   // Filtering state
   const [searchTerm, setSearchTerm] = useState('');
